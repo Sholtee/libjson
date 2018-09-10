@@ -1,0 +1,15 @@
+[Bb]ackup*/
+__[Hh]istory*/
+[Bb][Ii][Nn]*/
+[Ll][Ii][Bb]*/
+.svn*/
+*.identcache
+*.local
+*.lps
+*.tvsconfig
+*.dcu
+*.o
+*.ppu
+*.exe
+*.bak
+*.stat
