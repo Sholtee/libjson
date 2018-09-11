@@ -16,6 +16,7 @@ History:
                 WideStringHelper.SubString (Denes Solti)
     2016.01.05: TStringBuilder (Denes Solti)
     2016.01.25: WideCharHelper (Denes Solti)
+    2018.09.11: Hint removal (Denes Solti)
 
 *******************************************************************************}
 unit system.strings;
@@ -156,7 +157,7 @@ begin
 
     for I := 0 to Length(Ar) - 1 do
     begin
-        if Ar[I].VType in [vtExtended, vtCurrency, vtObject, vtClass, vtVariant, vtInterface] then
+        if Byte(Ar[I].VType) in [vtExtended, vtCurrency, vtObject, vtClass, vtVariant, vtInterface] then
             ComError(E_INVALIDARG);
         Result[I] := Ar[I].VPointer;
     end;
