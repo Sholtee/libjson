@@ -402,7 +402,7 @@ var
 begin
     if Len < 0 then Len := lstrlenW(P);
 
-    Required := FPosition {Eddig hany darab volt} + Len {Hany uj dara lesz};
+    Required := FPosition {Eddig hany darab volt} + Len {Hany uj darab lesz};
     if FBuffer.Length < Required then Length := Required * 2;
 
     Move(p^, (PWideChar(FBuffer) + FPosition)^, Len * SizeOf(WideChar));
