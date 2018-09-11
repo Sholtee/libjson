@@ -15,7 +15,7 @@ uses
 
     variants,
 
-    json.reader, json.writer;
+    json.types, json.reader, json.writer;
 
 
 type

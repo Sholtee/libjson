@@ -27,21 +27,10 @@ interface
 
 
 uses
-    json.common, system.strings;
+    json.types, json.common, system.strings;
 
 
 type
-    IJsonWriter = interface
-        ['{CA687B3B-C016-4DC4-9330-E1FB943F00CC}']
-        function Write(const AData: TVarData): PWideChar; safecall;
-        function CreateJsonObject: TVarData; safecall;
-    end;
-
-
-    TFormatOption  = (foSingleLineArray, foSingleLineObject, foDoNotQuoteMembers, foMax {UNUSED});
-    TFormatOptions = Set of TFormatOption;
-
-
     TJsonWriter = class sealed(TCancelable, IJsonWriter)
     private const
         NewLineFmt: WideString = '%r%n%1!.*s!';

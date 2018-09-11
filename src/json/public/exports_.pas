@@ -19,25 +19,15 @@ unit exports_;
 {$IFDEF FPC}
     {$MODE DELPHI}
 {$ENDIF}
-{$A+} // record alignment on 4 byte boundaries
-{$Z4} // enum size is 4 bytes
 
 
 interface
 
 
 uses
-    JwaWinType;
+    JwaWinType,
 
-
-type
-    TConstructorParams = record
-        CancellationToken: HANDLE;
-        MaxDepth: DWORD;
-        case INT of
-            0: (FormatOptions: DWORD);
-            1: (Strict_: BOOL)
-    end;
+    json.types;
 
 
 function GetObject(const {byRef} CLSID: TGUID; const {byRef} CtorParams: TConstructorParams; out {byRef} Obj: IUnknown): HRESULT; stdcall;

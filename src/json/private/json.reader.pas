@@ -27,16 +27,10 @@ interface
 
 
 uses
-    json.common, variant.helpers;
+    json.types, json.common, variant.helpers;
 
 
 type
-    IJsonReader = interface
-        ['{B25495C9-7DF5-4098-803C-1078AD9DE596}']
-        function ParseValue(const AString: WideString): TVarData; safecall;
-    end;
-
-
     TJsonReader = class sealed(TCancelable, IJsonReader)
     private type
         TJsonToken =

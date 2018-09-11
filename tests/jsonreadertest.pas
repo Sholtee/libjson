@@ -19,7 +19,7 @@ uses
 
     variants, generic.containers,
 
-    json.reader, json.object_;
+    json.types, json.reader, json.object_;
 
 
 type
