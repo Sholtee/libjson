@@ -50,7 +50,7 @@
       <IncludeFiles Value="$(ProjOutDir)"/>
       <Libraries Value="LIB"/>
       <OtherUnitFiles Value="private;public;..\common"/>
-      <UnitOutputDirectory Value="LIB"/>
+      <UnitOutputDirectory Value="..\..\lib"/>
     </SearchPaths>
     <CodeGeneration>
       <RelocatableUnit Value="True"/>
