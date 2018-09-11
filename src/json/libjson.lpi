@@ -19,6 +19,7 @@
     </i18n>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
+      <RevisionNr Value="1"/>
       <BuildNr Value="9"/>
       <StringTable CompanyName="Denes Solti" FileDescription="Lightweight JSON Library" ProductVersion="1.0.0.8"/>
     </VersionInfo>
