@@ -107,6 +107,10 @@ implementation
 uses
     JwaWinType, JwaWinError,
 
+    {$IFDEF DEBUG}
+    JwaWinBase,
+    {$ENDIF}
+
     system.error, system.strings,
 
     {$IFDEF FPC}
