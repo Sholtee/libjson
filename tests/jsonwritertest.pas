@@ -78,7 +78,7 @@ begin
         Result := NULL; // Clear last value
         TVarData(Result) := FReader.ParseValue(PWideChar(StringToParse));
 
-        CheckEquals('Solti Dénes', Result.glossary.title); // Unicode
+        CheckEquals(WideString('Solti Dénes'), Result.glossary.title); // Unicode
         CheckEquals(2, VarArrayGet(Result.glossary.GlossDiv.GlossList.GlossEntry.GlossDef.Values, [0])); // Array, int
         CheckEquals(1.5, VarArrayGet(Result.glossary.GlossDiv.GlossList.GlossEntry.GlossDef.Values, [1])); // Array, float
 

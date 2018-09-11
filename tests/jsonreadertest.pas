@@ -152,14 +152,14 @@ end;
 
 
 procedure JsonReaderTests.UnicodeTest;
-    function GetString(const S: WideString): String;
+    function GetString(const S: WideString): WideString;
     begin
         Result := OleVariant( FReader.ParseValue(S) );
     end;
 begin
-    CheckEquals('Solti Dénes', GetString('"Solti D\u00E9nes"'));
-    CheckEquals('é', GetString('"\u00E9"'));
-    CheckEquals('\é' + sLineBreak, GetString('"\\\u00E9\r\n"'));
+    CheckEquals(WideString('Solti Dénes'), GetString('"Solti D\u00E9nes"'));
+    CheckEquals(WideString('é'), GetString('"\u00E9"'));
+    CheckEquals(WideString('\é') + sLineBreak, GetString('"\\\u00E9\r\n"'));
 end;
 
 
