@@ -40,7 +40,7 @@ type
     end;
 
 
-function GetObject(const CLSID: TGUID; const CtorParams: TConstructorParams; out Obj: IUnknown): HRESULT; stdcall;
+function GetObject(const {byRef} CLSID: TGUID; const {byRef} CtorParams: TConstructorParams; out {byRef} Obj: IUnknown): HRESULT; stdcall;
 
 
 implementation
