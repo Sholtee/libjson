@@ -1,15 +1,15 @@
 {*******************************************************************************
 
-(c) 2014 Denes Solti
+Author: Denes Solti
 
 Unit:
     variant.helpers.pas
 
 Abstract:
-    Variant helpers
+    Variant helpers.
 
 History:
-    2014.12.24: Letrehozva (Denes Solti)
+    2014.12.24: Created (Denes Solti)
 
 *******************************************************************************}
 unit variant.helpers;

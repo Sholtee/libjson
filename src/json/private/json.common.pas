@@ -1,15 +1,15 @@
 {*******************************************************************************
 
-(c) Denes Solti
+Author: Denes Solti
 
 Unit:
     json.common.pas
 
 Abstract:
-    Common objects
+    Common stuffs.
 
 History:
-    2016.01.28: Letrehozva (Denes Solti)
+    2016.01.28: Created (Denes Solti)
 
 *******************************************************************************}
 unit json.common;

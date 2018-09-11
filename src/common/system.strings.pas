@@ -1,15 +1,15 @@
 {*******************************************************************************
 
-(c) 2014 Denes Solti
+Author: Denes Solti
 
 Unit:
     system.strings.pas
 
 Abstract:
-    Karakter-lancok.
+    Strings.
 
 History:
-    2014.11.08: Letrehozva (Denes Solti)
+    2014.11.08: Created (Denes Solti)
     2014.12.15: Reviewed (Denes Solti)
     2015.02.14: TWideStringMarshaller (Denes Solti)
     2015.04.12: WideStringHelper.IsNilOrEmpty, (Denes Solti)

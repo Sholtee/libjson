@@ -1,15 +1,15 @@
 {*******************************************************************************
 
-(c) 2014 Denes Solti
+Author: Denes Solti
 
 Unit:
     system.error.pas
 
 Abstract:
-    Hibak.
+    Errors.
 
 History:
-    2014.10.21: Letrehozva (Denes Solti)
+    2014.10.21: Created (Denes Solti)
 
 *******************************************************************************}
 unit system.error;

@@ -1,15 +1,15 @@
 {*******************************************************************************
 
-(c) 2014 Denes Solti
+Author: Denes Solti
 
 Unit:
     com.safeobject.pas
 
 Abstract:
-    COM objektumok.
+    COM objects.
 
 History:
-    2014.11.01: Letrehozva (Denes Solti)
+    2014.11.01: Created (Denes Solti)
 
 *******************************************************************************}
 unit com.safeobject;

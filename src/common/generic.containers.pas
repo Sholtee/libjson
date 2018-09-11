@@ -1,18 +1,18 @@
 {*******************************************************************************
 
-(c) 2014 Denes Solti
+Author: Denes Solti
 
 Unit:
     generic.containers.pas
 
 Abstract:
-    Tarolok.
+    Containers.
 
 History:
-    2014.11.01: Letrehozva (Denes Solti)
+    2014.11.01: Created (Denes Solti)
     2014.12.14: TAppendable<T> (Denes Solti)
-    2015.02.08: Nem kis-nagybetu erzekeny szotar (Denes Solti)
-    2016.07.17: Lancolt listak (Denes Solti)
+    2015.02.08: Case insensitive dictionary (Denes Solti)
+    2016.07.17: Linked lists (Denes Solti)
 
 *******************************************************************************}
 unit generic.containers;

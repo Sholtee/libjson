@@ -1,16 +1,16 @@
 {*******************************************************************************
 
-(c) 2014 Denes Solti
+Author: Denes Solti
 
 Unit:
     exports_.pas
 
 Abstract:
-    Publikus metodusok.
+    Exports.
 
 History:
-    2014.12.30: Letrehozva (Denes Solti)
-    2016.01.29: Felulvizsgalva (Denes Solti)
+    2014.12.30: Created (Denes Solti)
+    2016.01.29: Reviewed (Denes Solti)
 
 *******************************************************************************}
 unit exports_;

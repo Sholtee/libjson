@@ -1,16 +1,16 @@
 {*******************************************************************************
 
-(c) Denes Solti
+Author: Denes Solti
 
 Unit:
     json.writer.pas
 
 Abstract:
-    Json writer
+    Json writer.
 
 History:
-    2014.12.27: Letrehozva (Denes Solti)
-    2016.01.27: Felulvizsgalva (Denes Solti)
+    2014.12.27: Created (Denes Solti)
+    2016.01.27: Reviewed (Denes Solti)
 
 *******************************************************************************}
 unit json.writer;

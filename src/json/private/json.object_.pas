@@ -1,6 +1,6 @@
 {*******************************************************************************
 
-(c) Denes Solti
+Author: Denes Solti
 
 Unit:
     json.object_.pas
@@ -9,9 +9,9 @@ Abstract:
     Expando object.
 
 History:
-    2014.12.22: Letrehozva (Denes Solti)
-    2014.02.13: Nem kis-nagy betu erzekeny expando object (Denes Solti)
-    2016.01.27: Felulvizsgalva (Denes Solti)
+    2014.12.22: Created (Denes Solti)
+    2014.02.13: Case insensitive expando object (Denes Solti)
+    2016.01.27: Reviewed (Denes Solti)
 
 *******************************************************************************}
 unit json.object_;

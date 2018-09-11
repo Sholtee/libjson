@@ -1,6 +1,6 @@
 {*******************************************************************************
 
-(c) Denes Solti
+Author: Denes Solti
 
 Unit:
     json.reader.pas
@@ -9,9 +9,8 @@ Abstract:
     Json reader.
 
 History:
-    2014.12.24: Letrehozva (Denes Solti)
-    2015.01.25: Beallitasok a registry-bol (Denes Solti)
-    2016.01.25: Felulvizsgalva (Denes Solti)
+    2014.12.24: Created (Denes Solti)
+    2016.01.25: Reviewed (Denes Solti)
 
 *******************************************************************************}
 unit json.reader;

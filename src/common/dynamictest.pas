@@ -1,15 +1,15 @@
 {*******************************************************************************
 
-(c) 2015 Denes Solti
+Author: Denes Solti
 
 Unit:
     dynamictest.pas
 
 Abstract:
-    Dinamikus tesztek.
+    Dynamic test.
 
 History:
-    2015.01.12: Letrehozva (Denes Solti)
+    2015.01.12: Created (Denes Solti)
 
 *******************************************************************************}
 unit dynamictest;
