@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{5C0D0974-E3A6-41ED-95C3-97AE06E6FC47}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="libjson.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Tests\test.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="libjson">
+        <MSBuild Projects="libjson.dproj"/>
+    </Target>
+    <Target Name="libjson:Clean">
+        <MSBuild Projects="libjson.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="libjson:Make">
+        <MSBuild Projects="libjson.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="test">
+        <MSBuild Projects="Tests\test.dproj"/>
+    </Target>
+    <Target Name="test:Clean">
+        <MSBuild Projects="Tests\test.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="test:Make">
+        <MSBuild Projects="Tests\test.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="libjson;test"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="libjson:Clean;test:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="libjson:Make;test:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
