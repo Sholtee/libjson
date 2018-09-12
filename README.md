@@ -25,7 +25,7 @@ type
 
     IJsonReader = interface
         ['{B25495C9-7DF5-4098-803C-1078AD9DE596}']
-		// function ParseValue([in] AString: PPWideChar; [out] Ret: PVARIANT): HRESULT; stdcall;
+        // function ParseValue([in] AString: PPWideChar; [out] Ret: PVARIANT): HRESULT; stdcall;
         function ParseValue(const {byRef} AString: WideString): OleVariant; safecall;
     end;
 
@@ -61,18 +61,18 @@ const
 	
 var
     Reader: IJsonReader;
-	RetVal: OleVariant;
+    RetVal: OleVariant;
 	
 begin
     Reader := GetObject(IJsonReader, CtorParams) as IJsonReader;
     RetVal := Reader.ParseValue('{str: "val", int: 3, obj: {field: "dummy"}}');
 	
-	// Property names are case insensitives so RetVal.Str would be the same
-	DebugMsg(RetVal.str); // will print "val"
-	DebugMsg(RetVal.int); // will print "3"
-	DebugMsg(RetVal.obj.field); // will print "dummy"
-	
-	DebugMsg(RetVal.obj.invalid); // will throw an exception
+    // Property names are case insensitives so RetVal.Str would be the same
+    DebugMsg(RetVal.str); // will print "val"
+    DebugMsg(RetVal.int); // will print "3"
+    DebugMsg(RetVal.obj.field); // will print "dummy"
+
+    DebugMsg(RetVal.obj.invalid); // will throw an exception
 end;	
 ``` 
  
@@ -89,18 +89,18 @@ const
 	
 var
     Writer: IJsonWriter;
-	Obj: OleVariant;
+    Obj: OleVariant;
 	
 begin
     Writer := GetObject(IJsonWriter, CtorParams) as IJsonWriter;
     Obj := Writer.CreateJsonObject;
 	
-	Obj.Str := 'val'; 
-	
-	Obj.AnotherObj := Writer.CreateJsonObject;
-	Obj.AnotherObj.Int := 1986;
-	
-	DebugMsg(Writer.Write(Obj)); // will print "{Str: "val", AnotherObj: {Int: 1986}}"
+    Obj.Str := 'val'; 
+
+    Obj.AnotherObj := Writer.CreateJsonObject;
+    Obj.AnotherObj.Int := 1986;
+
+    DebugMsg(Writer.Write(Obj)); // will print "{Str: "val", AnotherObj: {Int: 1986}}"
 end;	
 ```  
 
