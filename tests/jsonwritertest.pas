@@ -32,12 +32,29 @@ type
 
 implementation
 
+uses
+    comobj,
+
+    exports_;
+
 
 procedure JsonWriterTests.AfterConstruction;
+    function CreateInstance(const ClsId: TGuid): IUnknown;
+    const
+        CtorParams: TConstructorParams =
+        (
+            CancellationToken: 0;
+            MaxDepth:          25;
+            FormatOptions:     0; // Strict_: False
+        );
+    begin
+        OleCheck(GetObject(ClsId, CtorParams, Result));
+    end;
+
 begin
     inherited;
-    FReader := TJsonReader.Create;
-    FWriter := TJsonWriter.Create;
+    FReader := CreateInstance(IJsonReader) as IJsonReader;
+    FWriter := CreateInstance(IJsonWriter) as IJsonWriter;
 end;
 
 

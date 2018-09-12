@@ -66,11 +66,24 @@ type
 
 implementation
 
+uses
+    exports_;
+
 
 procedure JsonReaderTests.AfterConstruction;
+const
+    CtorParams: TConstructorParams =
+    (
+        CancellationToken: 0;
+        MaxDepth:          25;
+        Strict_:           False;
+    );
+var
+    Reader: IUnknown;
 begin
     inherited;
-    FReader := TJsonReader.Create;
+    OleCheck(GetObject(IJsonReader, CtorParams, Reader));
+    FReader := Reader as IJsonReader;
 end;
 
 
