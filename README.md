@@ -65,9 +65,11 @@ var
 	
 begin
     Reader := GetObject(IJsonReader, CtorParams) as IJsonReader;
+	
+	// Under the hood RetVal is an expando object wrapped into IDispatch
     RetVal := Reader.ParseValue('{str: "val", int: 3, obj: {field: "dummy"}}');
 	
-    // Property names are case insensitives so RetVal.Str would be the same
+    // Accessing property names is case insensitive so RetVal.Str would be the same
     DebugMsg(RetVal.str); // will print "val"
     DebugMsg(RetVal.int); // will print "3"
     DebugMsg(RetVal.obj.field); // will print "dummy"
@@ -93,6 +95,8 @@ var
 	
 begin
     Writer := GetObject(IJsonWriter, CtorParams) as IJsonWriter;
+	
+	// The following line creates an empty expando object wrapped into IDispatch
     Obj := Writer.CreateJsonObject;
 	
     Obj.Str := 'val'; 
