@@ -110,7 +110,7 @@ end;
 
 ## Download
 
-You can download the (FPC) compiled version of the library [here](https://github.com/Sholtee/libjson/releases/download/v0.0.1.9/libjson.dll).
+You can download the (64bit - FPC) compiled version of the library [here](https://github.com/Sholtee/libjson/releases/download/v0.0.1.9/libjson.dll).
 
 ## License
 
