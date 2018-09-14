@@ -126,7 +126,7 @@ begin
 
     if FBuilder.Position <> 0 then
     begin
-        FCancellCounter := 0;
+        FCancelCounter  := 0;
         FBuilder.Length := 0;
     end;
 
