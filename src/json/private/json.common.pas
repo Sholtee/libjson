@@ -31,7 +31,7 @@ type
     TCancelable = class(TSafeObject)
     protected
         FCancellationToken: THandle;
-        FCancellCounter:    Cardinal;
+        FCancelCounter:     Cardinal;
         procedure CheckCancelled;
     public
         constructor Create(ACancellationToken: THandle);
@@ -67,14 +67,14 @@ begin
     // tet (a WaitForSingleObject() sokaig tart).
     //
 
-    if FCancellCounter mod 50 = 0 then
+    if FCancelCounter mod 50 = 0 then
     begin
         State := WaitForSingleObject(FCancellationToken, 0);
         WinCheck(State <> WAIT_FAILED);
 
         if State = WAIT_OBJECT_0 then WinError(ERROR_CANCELLED);
     end;
-    Inc(FCancellCounter);
+    Inc(FCancelCounter);
 end;
 {$ENDREGION}
 
