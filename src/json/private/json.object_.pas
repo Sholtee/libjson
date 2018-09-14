@@ -12,6 +12,7 @@ History:
     2014.12.22: Created (Denes Solti)
     2014.02.13: Case insensitive expando object (Denes Solti)
     2016.01.27: Reviewed (Denes Solti)
+    2018.09.14: Fixed property assignment bug (Denes Solti)
 
 *******************************************************************************}
 unit json.object_;
