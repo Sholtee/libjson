@@ -89,7 +89,7 @@ implementation
 
 
 uses
-    JwaWinError, JwaWinType,
+    JwaWinType, JwaWinError,
 
     system.error;
 
@@ -222,8 +222,10 @@ end;
 
 {$IFDEF FPC}{$PUSH}{$HINTS OFF}{$ENDIF}
 procedure TExpandoObject.Invoke;
+var
+    Param: TVarData;
 begin
-    if (DispID < 0) or (DispID > FFields.Count) or not (Flags in [2..4]) then
+    if (DispID < 0) or (DispID > FFields.Count) then
         ComError(DISP_E_MEMBERNOTFOUND);
 
     case Flags of
@@ -233,11 +235,16 @@ begin
             PVarData(VarResult)^ := FFields[DispId].Data.Copy;
         end;
 
-        4 {DISPATCH_PROPERTYPUT}:
+        4 {DISPATCH_PROPERTYPUT}, 12 {DISPATCH_PROPERTYPUT OR DISPATCH_PROPERTYPUTREF}:
         begin
-            if not PVarData(Params)^.IsValid then ComError(DISP_E_BADVARTYPE);
-            FFields[DispId] := TSmartVariant.Create( PVarData(Params)^.Copy ); // Torli a regit (ha volt)
+            Param := PVarData(Params)^; // Params[0]
+            if not Param.IsValid then ComError(DISP_E_BADVARTYPE);
+            if not BOOL(Flags and 8 {DISPATCH_PROPERTYPUTREF}) then Param := Param.Copy;
+
+            FFields[DispId] := TSmartVariant.Create(Param) // Torli a regit (ha volt)
         end;
+
+        else ComError(HRESULT_FROM_WIN32(ERROR_INVALID_FLAGS));
     end;
 end;
 {$IFDEF FPC}{$POP}{$ENDIF}
