@@ -11,19 +11,19 @@ interface
 
 
 uses
-    {$IFDEF FPC}fpcunit, testregistry{$ELSE}TestFramework{$ENDIF},
-
-    json.object_;
+    {$IFDEF FPC}fpcunit, testregistry{$ELSE}TestFramework{$ENDIF};
 
 
 type
     ExpandoObjectTests = class sealed(TTestCase)
-    protected
+    private
         FObj: OleVariant;
-        procedure SetUp; override;
-        procedure TearDown; override;
         procedure NonExistingProperty;
         procedure CreateCircularReference;
+        class function CreateExpandoObject: TVarData;
+    protected // csak h ne dumaljon a fordito
+        procedure SetUp; override;
+        procedure TearDown; override;
     published
         procedure BasicTest;
         procedure CircularReferenceTest;
@@ -34,12 +34,30 @@ implementation
 
 
 uses
-    generic.containers, Variants, ComObj;
+    generic.containers, Variants, ComObj,
 
+    json.object_, json.types, exports_;
+
+
+class function ExpandoObjectTests.CreateExpandoObject;
+    function CreateInstance(const ClsId: TGuid): IUnknown;
+    const
+        CtorParams: TConstructorParams =
+        (
+            CancellationToken: 0;
+            MaxDepth:          25;
+            FormatOptions:     0;
+        );
+    begin
+        OleCheck(GetObject(ClsId, CtorParams, Result));
+    end;
+begin
+    Result := (CreateInstance(IJsonWriter) as IJsonWriter).CreateJsonObject;
+end;
 
 procedure ExpandoObjectTests.SetUp;
 begin
-    TVarData(FObj) := TExpandoObject.Create.AsVariant;
+    TVarData(FObj) := CreateExpandoObject;
 
     CheckEquals(varDispatch, VarType(FObj));
     {$IFDEF FPC}
@@ -60,32 +78,38 @@ procedure ExpandoObjectTests.NonExistingProperty;
 var
     I: Integer;
 begin
-    I := FObj.NonExistingProperty;
+    I := FObj.PropertyToDelete;
     Check(I = 0);  // Csak h ne legyen hint
 end;
 
 
 procedure ExpandoObjectTests.BasicTest;
 var
-    I: Integer;
     V: TPair<TVarData>;
+    Keys: TAppendable<WideString>;
 begin
     FObj.Property1 := 'XYZ';
     FObj.Property2 := Integer(1986);
+    FObj.PropertyToDelete := OleVariant( CreateExpandoObject );
+    FObj.PropertyToDelete.Property1 := 10;
 
     CheckEquals(FObj.Property1, 'XYZ');
     CheckEquals(FObj.Property1, 'XYZ', 'Property accessible only once'); // Megegyszer ugyanazt...
     CheckEquals(FObj.Property2,  1986);
+    CheckEquals(FObj.PropertyToDelete.Property1, 10);
 
+    FObj.PropertyToDelete := UNASSIGNED; // delete
     CheckException(NonExistingProperty, EOleSysError);
 
-    I := 0;
+    Keys := TAppendable<WideString>.Create;
     for V in IUnknown(FObj) as IExpandoObject do
     begin
-        Check((V.Name = 'Property1') or (V.Name = 'Property2'));
-        Inc(I);
+        Keys.Append(V.Name);
     end;
-    CheckEquals(2, I);
+    CheckEquals(Keys.Count, 2);
+    Check(Keys[0] <> Keys[1]);
+    Check((Keys[0] = 'Property1') or (Keys[0] = 'Property2'));
+    Check((Keys[1] = 'Property1') or (Keys[1] = 'Property2'))
 end;
 
 

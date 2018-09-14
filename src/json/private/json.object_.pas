@@ -12,7 +12,9 @@ History:
     2014.12.22: Created (Denes Solti)
     2014.02.13: Case insensitive expando object (Denes Solti)
     2016.01.27: Reviewed (Denes Solti)
-    2018.09.14: Fixed property assignment bug (Denes Solti)
+    2018.09.14:
+        - Fixed property assignment bug (Denes Solti)
+        - Property removal support
 
 *******************************************************************************}
 unit json.object_;
@@ -162,7 +164,7 @@ constructor TExpandoObject.Create;
 begin
     inherited Create;
     FDispIds := TNameValueCollection<Integer>.Create;
-    FFields := TAppendable<ISmartVariant>.Create;
+    FFields  := TAppendable<ISmartVariant>.Create;
 end;
 
 
@@ -215,7 +217,7 @@ begin
 
         Inc(PINT(DispIDs), I);
         Inc(PPWCHAR(Names), I);
-        PINT(DispIDs)^ := GetIdOfName(PPWCHAR(Names)^);
+        PINT(DispIDs)^ {DispIds[I]} := GetIdOfName(PPWCHAR(Names)^ {Names[I]});
     end;
 end;
 {$IFDEF FPC}{$POP}{$ENDIF}
@@ -239,10 +241,19 @@ begin
         4 {DISPATCH_PROPERTYPUT}, 12 {DISPATCH_PROPERTYPUT OR DISPATCH_PROPERTYPUTREF}:
         begin
             Param := PVarData(Params)^; // Params[0]
-            if not Param.IsValid then ComError(DISP_E_BADVARTYPE);
-            if not BOOL(Flags and 8 {DISPATCH_PROPERTYPUTREF}) then Param := Param.Copy;
 
-            FFields[DispId] := TSmartVariant.Create(Param) // Torli a regit (ha volt)
+            if Param.VType <> varEmpty then
+            begin
+                if not Param.IsValid then ComError(DISP_E_BADVARTYPE); // varEmpty csak a TExpandoObject kontextusaban valid
+                if not BOOL(Flags and 8 {DISPATCH_PROPERTYPUTREF}) then Param := Param.Copy;
+            end;
+
+            //
+            // Ha torles (Param.VType = varEmpty) volt akkor felsorolaskor
+            // az enumerator ezt az indexet ki fogja hagyni.
+            //
+
+            FFields[DispId] := TSmartVariant.Create(Param) // Felszabaditja a regit (ha volt)
         end;
 
         else ComError(HRESULT_FROM_WIN32(ERROR_INVALID_FLAGS));
