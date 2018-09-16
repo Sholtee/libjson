@@ -15,6 +15,7 @@ History:
     2018.09.14:
         - Fixed property assignment bug (Denes Solti)
         - Property removal support (Denes Solti)
+    2018.09.16: Fixed buffer overflow in GetIDsOfNames (Denes Solti)
 
 *******************************************************************************}
 unit json.object_;
@@ -54,7 +55,7 @@ type
     end;
 
 
-    ISafeDispatch = interface(IUnknown)
+    ISafeDispatch = interface
         ['{00020400-0000-0000-C000-000000000046}']
         procedure GetTypeInfoCount(out Count: Integer); safecall;
         procedure GetTypeInfo(Index, LocaleID: Integer; out TypeInfo); safecall;
@@ -95,6 +96,10 @@ uses
     JwaWinType, JwaWinError,
 
     system.error;
+
+
+type
+    TAr<T> = Array[0..0] of T;
 
 
 {$REGION TPropertyEnumerator}
@@ -203,7 +208,9 @@ end;
 {$IFDEF FPC}{$PUSH}{$HINTS OFF}{$ENDIF}
 procedure TExpandoObject.GetIDsOfNames;
 var
-    I: Integer;
+    I: INT;
+    DispIdsAr: ^TAr<INT>    absolute DispIDs;
+    NamesAr:   ^TAr<PWCHAR> absolute Names;
 begin
     for I := 0 to NameCount - 1 do
     begin
@@ -215,9 +222,7 @@ begin
         // (FPC-ben mukodne)
         //
 
-        Inc(PINT(DispIDs), I);
-        Inc(PPWCHAR(Names), I);
-        PINT(DispIDs)^ {DispIds[I]} := GetIdOfName(PPWCHAR(Names)^ {Names[I]});
+        DispIdsAr[I] := GetIdOfName(NamesAr[I]);
     end;
 end;
 {$IFDEF FPC}{$POP}{$ENDIF}
