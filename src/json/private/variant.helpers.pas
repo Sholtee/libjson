@@ -147,7 +147,7 @@ begin
     // megteszi).
     //
 
-    Result := (VType = varDispatch) and SUCCEEDED(IDispatch(VDispatch).QueryInterface(MarkerGuid, Obj));
+    Result := (VType = varDispatch) and SUCCEEDED( IDispatch(VDispatch).QueryInterface(MarkerGuid, Obj) );
 end;
 
 
@@ -186,7 +186,7 @@ end;
 
 function TVarHelper.GetItem;
 begin
-    ComCheck(SafeArrayGetElement(VArray, I, @Result));
+    ComCheck( SafeArrayGetElement(VArray, I, @Result) );
 end;
 
 
@@ -214,7 +214,7 @@ procedure TVarHelper.SetLength;
 var
     sb: SAFEARRAYBOUND;
 begin
-    Assert(VType = varArray or varVariant);
+    Assert(IsValidArray);
 
     sb.cElements := Length;
     sb.lLbound := 0;
@@ -243,8 +243,8 @@ end;
 
 function TVarHelper.GetLength;
 begin
-    Assert(VType = varArray or varVariant);
-    Result := UBound {Lehet -1} - LBound + 1;
+    Assert(IsValidArray);
+    Result := UBound - LBound + 1;
 end;
 {$ENDREGION}
 
@@ -291,19 +291,22 @@ end;
 
 procedure TVariantList.Add;
 begin
-    if FLength = FVariant.Data^.Length then
+    with FVariant do
     begin
-        if FVariant.Data.Length = 0 then FVariant.Data.Length := 2
-        else FVariant.Data.Length := FVariant.Data.Length * 2;
+        if FLength = Data.Length then
+        begin
+            if Data.Length = 0 then Data.Length := 2
+            else Data.Length := Data.Length * 2;
+        end;
+        Data^[FLength] := Variant.Data^; // buta fordito miatt ide kell "^"
     end;
-    FVariant.Data^[FLength] := Variant.Data^;  // MASOLAT
     Inc(FLength);
 end;
 
 
 function TVariantList.GetData;
 begin
-    FVariant.Data^.Length := FLength;
+    FVariant.Data.Length := FLength;
     Result := FVariant;
 end;
 {$ENDREGION}
