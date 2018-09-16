@@ -63,13 +63,13 @@ type
     end;
 
 
-    IExpandoObject = interface(ISafeDispatch)
+    IExpandoObject = interface
         [cMarker]
         function GetEnumerator: TPropertyEnumerator;
     end;
 
 
-    TExpandoObject = class sealed(TSafeObject, IExpandoObject)
+    TExpandoObject = class sealed(TSafeObject, ISafeDispatch, IExpandoObject)
     private
         FDispIds: TNameValueCollection<Integer>;
         FFields:  TAppendable<ISmartVariant>;
@@ -271,8 +271,16 @@ end;
 function TExpandoObject.AsVariant;
 begin
     Result.VType := varDispatch;
-    Result.vDispatch := nil; // Ne mutasson ervenytelen memoria-teruletre.
-    IExpandoObject(Result.VDispatch) := Self;
+
+    //
+    // Mivel referenciaszamlalt tipusra cast-olunk, ertekadaskor
+    // a rendszer automatikusan megprobalna felszabaditani a
+    // vDispatch altal hivatkozott memoriateruletet ha az nem NIL.
+    //
+
+    Result.vDispatch := nil;
+    ISafeDispatch(Result.vDispatch) := Self;
+    Assert(RefCount = 1);
 end;
 {$ENDREGION}
 

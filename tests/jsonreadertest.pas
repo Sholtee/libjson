@@ -222,7 +222,7 @@ var
 begin
     TVarData(Result) := FReader.ParseValue('{}');
     J := 0;
-    for I in IExpandoObject(IUnknown(Result)) do Inc(J);
+    for I in IUnknown(Result) as IExpandoObject do Inc(J);
     CheckEquals(0, J);
 end;
 

@@ -20,10 +20,9 @@ type
         FObj: OleVariant;
         procedure NonExistingProperty;
         procedure CreateCircularReference;
-        class function CreateExpandoObject: TVarData;
+        class function CreateExpandoObject: OleVariant;
     protected // csak h ne dumaljon a fordito
         procedure SetUp; override;
-        procedure TearDown; override;
     published
         procedure BasicTest;
         procedure CircularReferenceTest;
@@ -52,25 +51,17 @@ class function ExpandoObjectTests.CreateExpandoObject;
         OleCheck(GetObject(ClsId, CtorParams, Result));
     end;
 begin
-    Result := (CreateInstance(IJsonWriter) as IJsonWriter).CreateJsonObject;
+    TVarData(Result) := (CreateInstance(IJsonWriter) as IJsonWriter).CreateJsonObject;
 end;
 
 procedure ExpandoObjectTests.SetUp;
 begin
-    TVarData(FObj) := CreateExpandoObject;
+    FObj := CreateExpandoObject;
 
     CheckEquals(varDispatch, VarType(FObj));
     {$IFDEF FPC}
-    Check(IUnknown(FObj) is IExpandoObject);
+    Check(IDispatch(FObj) is IExpandoObject);
     {$ENDIF}
-end;
-
-
-procedure ExpandoObjectTests.TearDown;
-begin
-    // A "TVarData(FObj) :=" kifejezes miatt az automatikus
-    // felszabaditas nem megy...
-    FObj := NULL;
 end;
 
 
@@ -90,7 +81,7 @@ var
 begin
     FObj.Property1 := 'XYZ';
     FObj.Property2 := Integer(1986);
-    FObj.PropertyToDelete := OleVariant( CreateExpandoObject );
+    FObj.PropertyToDelete := CreateExpandoObject;
     FObj.PropertyToDelete.Property1 := 10;
 
     CheckEquals(FObj.Property1, 'XYZ');
