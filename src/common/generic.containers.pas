@@ -136,7 +136,7 @@ type
     private // Olvashato ebben a unit-ban
         procedure Remove;
         procedure InsertBefore(ANode: TLinkedListNode<T>);
-        procedure InsertAfter(ANode: TLinkedListNode<T>);
+//      procedure InsertAfter(ANode: TLinkedListNode<T>);
         procedure InitializeHead;
     public
         constructor Create(const AValue: T);
@@ -527,7 +527,7 @@ begin
     FOwner := ANode.Owner;
 end;
 
-
+{
 procedure TLinkedListNode<T>.InsertAfter;
 begin
     if Assigned(FNext) then Next.FPrev := ANode;
@@ -538,7 +538,7 @@ begin
 
     FOwner := ANode.Owner;
 end;
-
+}
 
 procedure TLinkedListNode<T>.InitializeHead;
 begin
