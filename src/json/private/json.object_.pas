@@ -238,7 +238,7 @@ begin
             PVarData(VarResult)^ := FFields[DispId].Data.Copy;
         end;
 
-        4 {DISPATCH_PROPERTYPUT}, 12 {DISPATCH_PROPERTYPUT OR DISPATCH_PROPERTYPUTREF}:
+        4 {DISPATCH_PROPERTYPUT}, 8 {DISPATCH_PROPERTYPUTREF}, 12 {DISPATCH_PROPERTYPUT OR DISPATCH_PROPERTYPUTREF}:
         begin
             Param := PVarData(Params)^; // Params[0]
 
