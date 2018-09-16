@@ -14,7 +14,7 @@ History:
     2016.01.27: Reviewed (Denes Solti)
     2018.09.14:
         - Fixed property assignment bug (Denes Solti)
-        - Property removal support
+        - Property removal support (Denes Solti)
 
 *******************************************************************************}
 unit json.object_;
@@ -256,7 +256,7 @@ begin
             FFields[DispId] := TSmartVariant.Create(Param) // Felszabaditja a regit (ha volt)
         end;
 
-        else ComError(HRESULT_FROM_WIN32(ERROR_INVALID_FLAGS));
+        else WinError(ERROR_INVALID_FLAGS);
     end;
 end;
 {$IFDEF FPC}{$POP}{$ENDIF}
