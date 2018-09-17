@@ -71,6 +71,7 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <Debugger_HostApplication>..\..\bin\test.exe</Debugger_HostApplication>
         <VerInfo_MajorVer>0</VerInfo_MajorVer>
         <VerInfo_Build>9</VerInfo_Build>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -146,12 +147,6 @@
                 </VersionInfoKeys>
             </Delphi.Personality>
             <Deployment>
-                <DeployFile LocalName="BIN\libjson.dll" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>libjson.dll</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule">
                     <Platform Name="OSX32">
                         <Overwrite>true</Overwrite>
@@ -161,6 +156,12 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="Win32\Debug\libjson.dll" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>libjson.dll</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="BIN\libjson.dll" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>libjson.dll</RemoteName>
                         <Overwrite>true</Overwrite>

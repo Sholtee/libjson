@@ -14,7 +14,6 @@ uses
   jsonwritertest in 'jsonwritertest.pas';
 
 begin
-    ReportMemoryLeaksOnShutdown := True;
     Application.Initialize;
     Application.Title := 'libjson Tests';
     GUITestRunner.RunRegisteredTests;

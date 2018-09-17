@@ -9,5 +9,8 @@ uses
 exports
     GetObject;
 
-
+begin
+{$IFOPT D+}
+    ReportMemoryLeaksOnShutdown := True;
+{$ENDIF}
 end.
