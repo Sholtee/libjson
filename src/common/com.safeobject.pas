@@ -6,7 +6,7 @@ Unit:
     com.safeobject.pas
 
 Abstract:
-    COM objects.
+    COM objects base.
 
 History:
     2014.11.01: Created (Denes Solti)

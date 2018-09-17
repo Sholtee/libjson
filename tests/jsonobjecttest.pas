@@ -79,9 +79,9 @@ end;
 procedure ExpandoObjectTests.BasicTest;
 begin
     FObj.Property1 := 'XYZ';
-    FObj.Property2 := Integer(1986);
+    FObj.Property2 := Integer(1986);  // cast azert h FPC alatt is fussanak a tesztek
     FObj.Property3 := CreateExpandoObject;
-    FObj.Property3.Property1 := 10;
+    FObj.Property3.Property1 := Integer(10);
 
     CheckEquals(FObj.Property1, 'XYZ');
     CheckEquals(FObj.Property1, 'XYZ', 'Property accessible only once'); // Megegyszer ugyanazt...
