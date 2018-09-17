@@ -3,7 +3,6 @@ program test;
 {$mode objfpc}{$H+}
 
 uses
-    heaptrc,  // Memory leaking check
     Forms, Interfaces,
     GuiTestRunner, fpcunittestrunner, fpcunit,
 

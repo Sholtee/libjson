@@ -1,11 +1,15 @@
 library libjson;
 
-{$mode objfpc}
+{$MODE OBJFPC}
 {$H+}
 
 {$R *.res}
 
 uses
+    {$IFOPT D+}
+    heaptrc,  // Memory leaking check
+    {$ENDIF}
+
     exports_;
 
 exports
