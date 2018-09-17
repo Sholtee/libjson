@@ -1,4 +1,4 @@
-library libjson;
+library {$IFDEF CPU64}libjson64{$ELSE}libjson32{$ENDIF};
 
 {$MODE OBJFPC}
 {$H+}

@@ -48,7 +48,7 @@ function GetObject(const {byRef} CLSID: TGUID; const {byRef} CtorParams: TConstr
 
 implementation
 
-function GetObject; external 'libjson';
+function GetObject; external 'libjson' + {$IFDEF CPU64}'64'{$ELSE}'32'{$ENDIF};
 ```
  
 ## Basic example

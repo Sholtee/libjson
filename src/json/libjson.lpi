@@ -30,7 +30,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="..\..\bin\libjson"/>
+            <Filename Value="..\..\bin\libjson$(TargetCPU)"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -86,7 +86,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="..\..\bin\libjson"/>
+      <Filename Value="..\..\bin\$(LibName)"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
@@ -94,6 +94,8 @@
       <OtherUnitFiles Value="private;public;..\common"/>
       <UnitOutputDirectory Value="..\..\lib"/>
     </SearchPaths>
+    <Conditionals Value="if TargetCpu = 'x86_64' then LibName := 'libjson64'
+else LibName := 'libjson32';"/>
     <CodeGeneration>
       <RelocatableUnit Value="True"/>
     </CodeGeneration>

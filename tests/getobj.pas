@@ -46,7 +46,7 @@ function GetObject(const CLSID: TGUID; const CtorParams: TConstructorParams): IU
 implementation
 
 
-function GetObject; external 'libjson';
+function GetObject; external 'libjson' + {$IFDEF CPU64}'64'{$ELSE}'32'{$ENDIF};
 
 
 end.
