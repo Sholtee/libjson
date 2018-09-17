@@ -73,10 +73,10 @@
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <Debugger_HostApplication>..\..\bin\test.exe</Debugger_HostApplication>
         <VerInfo_MajorVer>0</VerInfo_MajorVer>
-        <VerInfo_Build>9</VerInfo_Build>
+        <VerInfo_Build>10</VerInfo_Build>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Release>1</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=Denes Solti;FileDescription=Lightweight JSON reader/writer library;FileVersion=0.0.1.9;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=0.0.1.9;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=Denes Solti;FileDescription=Lightweight JSON reader/writer library;FileVersion=0.0.1.10;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=0.0.1.9;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
