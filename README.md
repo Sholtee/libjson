@@ -121,7 +121,7 @@ begin
 end;	
 ```
 
-Enumerating keys
+Enumerating keys:
 
 ```pas
 var
@@ -138,7 +138,7 @@ end;
 
 ## Download
 
-You can download the (64bit - FPC) compiled version of the library [here](https://github.com/Sholtee/libjson/releases/download/v0.0.1.10/libjson.dll).
+You can download either the [64](https://github.com/Sholtee/libjson/releases/download/v0.0.1.10/libjson64.dll) or the [32](https://github.com/Sholtee/libjson/releases/download/v0.0.1.10/libjson32.dll) bit (FPC compiled) version of the library.
 
 ## License
 
