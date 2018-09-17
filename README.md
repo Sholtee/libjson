@@ -92,7 +92,7 @@ const
 var
     Writer: IJsonWriter;
     Obj: OleVariant;
-	Json: PWideChar;
+    Json: PWideChar;
 	
 begin
     Writer := GetObject(IJsonWriter, CtorParams) as IJsonWriter;
@@ -100,10 +100,10 @@ begin
     // The following line creates an empty expando object wrapped into IDispatch
     Obj := Writer.CreateJsonObject;
 	
-	// Storing simple value
+    // Storing simple value
     Obj.Str := 'val'; 
 
-	// Storing complex value
+    // Storing complex value
     Obj.AnotherObj := Writer.CreateJsonObject; // Arrays can be created by the standard OLE way (SafeArrayCreate(), etc.)
     Obj.AnotherObj.Int := 1986;
 
@@ -111,7 +111,7 @@ begin
     Obj.PropertyToDelete := 10;
     Obj.PropertyToDelete := UNASSIGNED; // varEmpty
 	
-	Json := Writer.Write(Obj); // The returned pointer is valid until the next Write() call 	
+    Json := Writer.Write(Obj); // The returned pointer is valid until the next Write() call 	
     DebugMsg(JSon); // will print "{Str: "val", AnotherObj: {Int: 1986}}"
 end;	
 ```
