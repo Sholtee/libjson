@@ -132,7 +132,15 @@ end;
 {$REGION TVarHelper}
 function TVarHelper.IsValidSimpleType;
 begin
-    Result := (VType < 255) {"IN" csak BYTE hossz-on megy} and (BYTE(VType) in [varInteger, varSingle, varOleStr, varNull, varBoolean]);
+    Result := (VType < 255) {"IN" csak BYTE hossz-on megy} and (BYTE(VType) in
+    [
+        varInteger,
+        varSingle,
+        varOleStr,
+        varNull,
+        varEmpty,
+        varBoolean
+    ]);
 end;
 
 

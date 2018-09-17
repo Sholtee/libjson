@@ -150,14 +150,18 @@ end;
 
 function TPropertyEnumerator.MoveNext;
 begin
+    //
+    // Ures tagokat (varEmpty = torolt v meg ertek nelkuli) kihagyjuk.
+    //
+
 {$IFNDEF ORDERED_PROPERTIES}
     repeat
         Result := FDispIds.MoveNext;
-    until not Result or FFields[ FDispIds.Current.Data ].Data.IsValid; // Nem ervenyes tagokat kihagyjuk
+    until not Result or (FFields[ FDispIds.Current.Data ].Data.VType <> varEmpty);
 {$ELSE}
     repeat
         Inc(Findex);
-    until (FIndex = FFields.Count) or FFields[FIndex].Data.IsValid; // Nem ervenyes tagokat kihagyjuk
+    until (FIndex = FFields.Count) or (FFields[FIndex].Data.VType <> varEmpty);
     Result := FIndex < FFields.Count;
 {$ENDIF}
 end;
@@ -198,7 +202,7 @@ function TExpandoObject.GetIdOfName;
 begin
     if not FDispIds.Get(Name, Result) then
     begin
-        FFields.Append( TSmartVariant.Create );  // Egy ures elem felvete.
+        FFields.Append( TSmartVariant.Create );  // Egy ures elem (varEmpty) felvete.
         Result := Pred(FFields.Count);
         FDispIds.Add(Name, Result);
     end;
@@ -231,7 +235,7 @@ end;
 {$IFDEF FPC}{$PUSH}{$HINTS OFF}{$ENDIF}
 procedure TExpandoObject.Invoke;
 var
-    Param: TVarData;
+    VarData: TVarData;
 begin
     if (DispID < 0) or (DispID > FFields.Count) then
         ComError(DISP_E_MEMBERNOTFOUND);
@@ -239,26 +243,28 @@ begin
     case Flags of
         2, 3 {DISPATCH_PROPERTYGET}:
         begin
-            if not FFields[DispId].Data.IsValid then ComError(DISP_E_MEMBERNOTFOUND);
-            PVarData(VarResult)^ := FFields[DispId].Data.Copy;
+            VarData := FFields[DispId].Data^;
+
+            if not VarData.IsValid or (VarData.VType = varEmpty {torolt}) then ComError(DISP_E_MEMBERNOTFOUND);
+            PVarData(VarResult)^ := VarData.Copy;
         end;
 
         4 {DISPATCH_PROPERTYPUT}, 8 {DISPATCH_PROPERTYPUTREF}, 12 {DISPATCH_PROPERTYPUT OR DISPATCH_PROPERTYPUTREF}:
         begin
-            Param := PVarData(Params)^; // Params[0]
+            VarData := PVarData(Params)^; // Params[0]
 
-            if Param.VType <> varEmpty then
+            if VarData.VType <> varEmpty then
             begin
-                if not Param.IsValid then ComError(DISP_E_BADVARTYPE); // varEmpty csak a TExpandoObject kontextusaban valid
-                if not BOOL(Flags and 8 {DISPATCH_PROPERTYPUTREF}) then Param := Param.Copy;
+                if not VarData.IsValid then ComError(DISP_E_BADVARTYPE);
+                if not BOOL(Flags and 8 {DISPATCH_PROPERTYPUTREF}) then VarData := VarData.Copy;
             end;
 
             //
-            // Ha torles (Param.VType = varEmpty) volt akkor felsorolaskor
-            // az enumerator ezt az indexet ki fogja hagyni.
+            // Ha torles (VarData.VType = varEmpty) volt akkor felsorolaskor
+            // az enumerator ezt az elemet ki fogja hagyni.
             //
 
-            FFields[DispId] := TSmartVariant.Create(Param) // Felszabaditja a regit (ha volt)
+            FFields[DispId] := TSmartVariant.Create(VarData) // Felszabaditja a regit (ha volt)
         end;
 
         else WinError(ERROR_INVALID_FLAGS);

@@ -25,6 +25,8 @@ type
         procedure SetUp; override;
     published
         procedure BasicTest;
+        procedure EnumeratorTest;
+        procedure RemovingPropertyTest;
         procedure CircularReferenceTest;
     end;
 
@@ -69,38 +71,61 @@ procedure ExpandoObjectTests.NonExistingProperty;
 var
     I: Integer;
 begin
-    I := FObj.PropertyToDelete;
+    I := FObj.Property2;
     Check(I = 0);  // Csak h ne legyen hint
 end;
 
 
 procedure ExpandoObjectTests.BasicTest;
+begin
+    FObj.Property1 := 'XYZ';
+    FObj.Property2 := Integer(1986);
+    FObj.Property3 := CreateExpandoObject;
+    FObj.Property3.Property1 := 10;
+
+    CheckEquals(FObj.Property1, 'XYZ');
+    CheckEquals(FObj.Property1, 'XYZ', 'Property accessible only once'); // Megegyszer ugyanazt...
+    CheckEquals(FObj.Property2,  1986);
+    CheckEquals(FObj.Property3.Property1, 10);
+end;
+
+
+procedure ExpandoObjectTests.EnumeratorTest;
 var
     V: TPair<TVarData>;
     Keys: TAppendable<WideString>;
 begin
     FObj.Property1 := 'XYZ';
     FObj.Property2 := Integer(1986);
-    FObj.PropertyToDelete := CreateExpandoObject;
-    FObj.PropertyToDelete.Property1 := 10;
-
-    CheckEquals(FObj.Property1, 'XYZ');
-    CheckEquals(FObj.Property1, 'XYZ', 'Property accessible only once'); // Megegyszer ugyanazt...
-    CheckEquals(FObj.Property2,  1986);
-    CheckEquals(FObj.PropertyToDelete.Property1, 10);
-
-    FObj.PropertyToDelete := UNASSIGNED; // delete
-    CheckException(NonExistingProperty, EOleSysError);
 
     Keys := TAppendable<WideString>.Create;
     for V in IUnknown(FObj) as IExpandoObject do
     begin
         Keys.Append(V.Name);
     end;
+
     CheckEquals(Keys.Count, 2);
     Check(Keys[0] <> Keys[1]);
     Check((Keys[0] = 'Property1') or (Keys[0] = 'Property2'));
     Check((Keys[1] = 'Property1') or (Keys[1] = 'Property2'))
+end;
+
+
+procedure ExpandoObjectTests.RemovingPropertyTest;
+begin
+    FObj.Property1 := 'XYZ';
+    FObj.Property2 := Integer(1986);
+
+    CheckEquals(FObj.Property1, 'XYZ');
+    CheckEquals(FObj.Property2,  1986);
+
+    FObj.Property2 := UNASSIGNED; // delete
+    CheckException(NonExistingProperty, EOleSysError);
+
+    CheckEquals(FObj.Property1, 'XYZ');
+
+    FObj.Property2 := Integer(5);
+    CheckEquals(FObj.Property2, 5);
 end;
 
 
