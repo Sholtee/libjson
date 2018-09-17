@@ -17,9 +17,9 @@ uses
 
     {$IFDEF FPC}fpcunit, testregistry{$ELSE}TestFramework{$ENDIF},
 
-    variants, generic.containers,
+    variants,
 
-    json.types, json.reader, json.object_;
+    getobj;
 
 
 type
@@ -67,9 +67,6 @@ type
 implementation
 
 
-uses getobj;
-
-
 procedure JsonReaderTests.AfterConstruction;
 const
     CtorParams: TConstructorParams =
@@ -88,7 +85,7 @@ procedure JsonReaderTests.JsonOrgExample1;
 var
     Result: OleVariant;
 begin
-    TVarData(Result) := FReader.ParseValue(sJsonOrgExample1);
+    Result := FReader.ParseValue(sJsonOrgExample1);
 {
     CheckEquals(21, Rdr.Row);
     CheckEquals(1, Rdr.Column);
@@ -122,7 +119,7 @@ var
     end;
 
 begin
-    TVarData(Result) := FReader.ParseValue(
+    Result := FReader.ParseValue(
       '{"menu": {'                                               + sLineBreak +
       '    "header": "SVG Viewer",'                              + sLineBreak +
       '    "items": ['                                           + sLineBreak +
@@ -189,7 +186,7 @@ procedure JsonReaderTests.NonQuotedProperty;
 var
     Result: OleVariant;
 begin
-    TVarData(Result) := FReader.ParseValue(
+    Result := FReader.ParseValue(
       '{'                                 + sLineBreak +
       '    glossary: {'                   + sLineBreak +
       '        title: "example glossary"' + sLineBreak +
@@ -205,7 +202,7 @@ procedure JsonReaderTests.EmptyArray;
 var
     Result: OleVariant;
 begin
-    TVarData(Result) := FReader.ParseValue('[]');
+    Result := FReader.ParseValue('[]');
     CheckEquals(0, VarArrayLowBound(Result, 1));
     CheckEquals(-1, VarArrayHighBound(Result, 1));
 end;
@@ -213,26 +210,29 @@ end;
 
 procedure JsonReaderTests.EmptyObject;
 var
-    I: TPair<TVarData>;
-    J: Integer;
-    Result: OleVariant;
+    Keys: OleVariant;
 begin
-    TVarData(Result) := FReader.ParseValue('{}');
-    J := 0;
-    for I in IUnknown(Result) as IExpandoObject do Inc(J);
-    CheckEquals(0, J);
+    Keys := (FReader.ParseValue('{}') as IKeySet).GetKeys;
+    CheckEquals(0, VarArrayHighBound(Keys, 1));
 end;
 
 
 {$IFDEF FPC}{$PUSH}{$NOTES OFF}{$ENDIF}
 procedure JSonReaderTests.DepthCheckTest;
+const
+    CtorParams: TConstructorParams =
+    (
+        CancellationToken: 0;
+        MaxDepth:          6;
+        Strict_:           False;
+    );
 var
     Result: OleVariant;
     TmpRdr: IJsonReader;
 begin
-    TVarData(Result) := FReader.ParseValue(sJsonOrgExample1); // Meg mennie kell
+    Result := FReader.ParseValue(sJsonOrgExample1); // Meg mennie kell
     try
-        TmpRdr := TJsonReader.Create(False, 6, 0);
+        TmpRdr := GetObject(IJsonReader, CtorParams) as IJsonReader;
 
         TmpRdr.ParseValue(sJsonOrgExample1); // Mar nem mehet
         Check(False, 'No exception throwned');

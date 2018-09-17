@@ -15,7 +15,7 @@ uses
 
     variants,
 
-    json.types, json.reader, json.writer;
+    getobj;
 
 
 type
@@ -33,7 +33,7 @@ type
 implementation
 
 uses
-    comobj, getobj;
+    comobj;
 
 
 procedure JsonWriterTests.AfterConstruction;

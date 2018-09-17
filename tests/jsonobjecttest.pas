@@ -35,9 +35,9 @@ implementation
 
 
 uses
-    generic.containers, Variants, ComObj,
+    Variants, ComObj,
 
-    json.object_, json.types, getobj;
+    getobj;
 
 
 
@@ -54,7 +54,7 @@ class function ExpandoObjectTests.CreateExpandoObject;
         Result := GetObject(ClsId, CtorParams);
     end;
 begin
-    TVarData(Result) := (CreateInstance(IJsonWriter) as IJsonWriter).CreateJsonObject;
+    Result := (CreateInstance(IJsonWriter) as IJsonWriter).CreateJsonObject;
 end;
 
 procedure ExpandoObjectTests.SetUp;
@@ -93,19 +93,15 @@ end;
 
 procedure ExpandoObjectTests.EnumeratorTest;
 var
-    V: TPair<TVarData>;
-    Keys: TAppendable<WideString>;
+    Keys: OleVariant;
 begin
     FObj.Property1 := 'XYZ';
     FObj.Property2 := Integer(1986);
 
-    Keys := TAppendable<WideString>.Create;
-    for V in IUnknown(FObj) as IExpandoObject do
-    begin
-        Keys.Append(V.Name);
-    end;
+    Keys := (FObj as IKeySet).GetKeys;
 
-    CheckEquals(Keys.Count, 2);
+    CheckEquals(varArray or varVariant, VarType(Keys));
+    CheckEquals(2, VarArrayHighBound(Keys, 1));
     Check(Keys[0] <> Keys[1]);
     Check((Keys[0] = 'Property1') or (Keys[0] = 'Property2'));
     Check((Keys[1] = 'Property1') or (Keys[1] = 'Property2'))
