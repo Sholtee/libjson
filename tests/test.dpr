@@ -6,6 +6,9 @@ uses
   Vcl.Forms,
   TestFramework,
   GuiTestRunner,
+
+  getobj in 'getobj.pas',
+
   jsonobjecttest in 'jsonobjecttest.pas',
   jsonreadertest in 'jsonreadertest.pas',
   jsonwritertest in 'jsonwritertest.pas';

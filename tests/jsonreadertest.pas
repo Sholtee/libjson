@@ -66,8 +66,8 @@ type
 
 implementation
 
-uses
-    exports_;
+
+uses getobj;
 
 
 procedure JsonReaderTests.AfterConstruction;
@@ -78,12 +78,9 @@ const
         MaxDepth:          25;
         Strict_:           False;
     );
-var
-    Reader: IUnknown;
 begin
     inherited;
-    OleCheck(GetObject(IJsonReader, CtorParams, Reader));
-    FReader := Reader as IJsonReader;
+    FReader := GetObject(IJsonReader, CtorParams) as IJsonReader;
 end;
 
 

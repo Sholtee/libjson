@@ -7,6 +7,8 @@ uses
     Forms, Interfaces,
     GuiTestRunner, fpcunittestrunner, fpcunit,
 
+    getobj in 'getobj.pas',
+
     jsonobjecttest in 'jsonobjecttest.pas',
     jsonreadertest in 'jsonreadertest.pas',
     jsonwritertest in 'jsonwritertest.pas';

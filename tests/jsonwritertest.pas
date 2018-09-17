@@ -33,9 +33,7 @@ type
 implementation
 
 uses
-    comobj,
-
-    exports_;
+    comobj, getobj;
 
 
 procedure JsonWriterTests.AfterConstruction;
@@ -48,7 +46,7 @@ procedure JsonWriterTests.AfterConstruction;
             FormatOptions:     0; // Strict_: False
         );
     begin
-        OleCheck(GetObject(ClsId, CtorParams, Result));
+        Result := GetObject(ClsId, CtorParams);
     end;
 
 begin

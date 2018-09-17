@@ -37,7 +37,8 @@ implementation
 uses
     generic.containers, Variants, ComObj,
 
-    json.object_, json.types, exports_;
+    json.object_, json.types, getobj;
+
 
 
 class function ExpandoObjectTests.CreateExpandoObject;
@@ -50,7 +51,7 @@ class function ExpandoObjectTests.CreateExpandoObject;
             FormatOptions:     0;
         );
     begin
-        OleCheck(GetObject(ClsId, CtorParams, Result));
+        Result := GetObject(ClsId, CtorParams);
     end;
 begin
     TVarData(Result) := (CreateInstance(IJsonWriter) as IJsonWriter).CreateJsonObject;
@@ -62,7 +63,7 @@ begin
 
     CheckEquals(varDispatch, VarType(FObj));
     {$IFDEF FPC}
-    Check(IDispatch(FObj) is IExpandoObject);
+    Check(ISafeDispatch(FObj) is IExpandoObject);
     {$ENDIF}
 end;
 

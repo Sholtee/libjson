@@ -84,6 +84,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="getobj.pas"/>
         <DCCReference Include="jsonobjecttest.pas"/>
         <DCCReference Include="jsonreadertest.pas"/>
         <DCCReference Include="jsonwritertest.pas"/>
