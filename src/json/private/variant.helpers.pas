@@ -10,6 +10,7 @@ Abstract:
 
 History:
     2014.12.24: Created (Denes Solti)
+    2018.09.17: TVariantList.Add overload (Denes Solti)
 
 *******************************************************************************}
 unit variant.helpers;
@@ -85,7 +86,8 @@ type
         function  GetData: ISmartVariant;
     public
         constructor Create(InitSize: Cardinal);
-        procedure Add(Variant: ISmartVariant);
+        procedure Add(Variant: ISmartVariant); overload;
+        procedure Add(const Variant: TVarData); overload;
         property Data: ISmartVariant read GetData;
     end;
 
@@ -297,7 +299,7 @@ begin
 end;
 
 
-procedure TVariantList.Add;
+procedure TVariantList.Add(const Variant: TVarData);
 begin
     with FVariant do
     begin
@@ -306,14 +308,24 @@ begin
             if Data.Length = 0 then Data.Length := 2
             else Data.Length := Data.Length * 2;
         end;
-        Data^[FLength] := Variant.Data^; // buta fordito miatt ide kell "^"
+        Data^[FLength] {buta fordito miatt kell "^"} := Variant {masolat keszul rola};
     end;
     Inc(FLength);
 end;
 
 
+procedure TVariantList.Add(Variant: ISmartVariant);
+begin
+    Add(Variant.Data^);
+end;
+
+
 function TVariantList.GetData;
 begin
+    //
+    // Hossz korrekcio.
+    //
+
     FVariant.Data.Length := FLength;
     Result := FVariant;
 end;

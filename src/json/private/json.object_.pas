@@ -16,6 +16,7 @@ History:
         - Fixed property assignment bug (Denes Solti)
         - Property removal support (Denes Solti)
     2018.09.16: Fixed buffer overflow in GetIDsOfNames (Denes Solti)
+    2018.09.17: TExpandoObject implements IKeySet (Denes Solti)
 
 *******************************************************************************}
 unit json.object_;
@@ -31,7 +32,9 @@ interface
 
 
 uses
-    generic.containers, com.safeobject, variant.helpers;
+    generic.containers, com.safeobject, variant.helpers,
+
+    json.types;
 
 
 type
@@ -70,7 +73,7 @@ type
     end;
 
 
-    TExpandoObject = class sealed(TSafeObject, ISafeDispatch, IExpandoObject)
+    TExpandoObject = class sealed(TSafeObject, ISafeDispatch, IKeySet, IExpandoObject)
     private
         FDispIds: TNameValueCollection<Integer>;
         FFields:  TAppendable<ISmartVariant>;
@@ -80,12 +83,14 @@ type
         procedure GetTypeInfo(Index, LocaleID: Integer; out TypeInfo); safecall;
         procedure GetIDsOfNames(const IID: TGUID; Names: Pointer; NameCount, LocaleID: Integer; DispIDs: Pointer); safecall;
         procedure Invoke(DispID: Integer; const IID: TGUID; LocaleID: Integer; Flags: Word; var Params; VarResult, ExcepInfo, ArgErr: Pointer); safecall;
-        { IExpandoObject }
-        function GetEnumerator: TPropertyEnumerator;
+        { IKeySet }
+        function GetKeys: TVarData; safecall;
     public
         constructor Create;
         destructor Destroy; override;
         function AsVariant: TVarData;
+        { IExpandoObject }
+        function GetEnumerator: TPropertyEnumerator; // publikus h az "I in Self" kifejezes mukodjon
     end;
 
 
@@ -292,6 +297,36 @@ begin
     Result.vDispatch := nil;
     ISafeDispatch(Result.vDispatch) := Self;
     Assert(RefCount = 1);
+end;
+
+
+function TExpandoObject.GetKeys;
+var
+    Lst: TVariantList;
+    I:   TPair<TVarData>;
+    V:   TVarData;
+begin
+    Lst := TVariantList.Create(0);
+
+    V.VType := varOleStr;
+    for I in Self do
+    begin
+        //
+        // Mivel "V"-rol masolat keszul, nem gond h a kovetkezo
+        // iteracioban ez a mutato mar ervenyet veszti.
+        //
+
+        V.VOleStr := PWideChar(I.Name);
+        Lst.Add(V);
+    end;
+
+    //
+    // Nem kell masolat mert a listaval egyutt nem szabadul fel
+    // a tartalom is (lasd ctor parameterek).
+    //
+
+    Result := Lst.Data.Data^;
+    Lst.Data.Data^.VType := varEmpty; // HACK h ne legyen automatikus felszabaditas
 end;
 {$ENDREGION}
 

@@ -10,6 +10,7 @@ Abstract:
 
 History:
     2018.09.11: Created (Denes Solti)
+    2018.09.17: IKeySet (Denes Solti)
 
 *******************************************************************************}
 unit json.types;
@@ -45,10 +46,17 @@ type
         function ParseValue(const AString: WideString): TVarData; safecall;
     end;
 
+
     IJsonWriter = interface
         ['{CA687B3B-C016-4DC4-9330-E1FB943F00CC}']
         function Write(const AData: TVarData): PWideChar; safecall;
         function CreateJsonObject: TVarData; safecall;
+    end;
+
+
+    IKeySet = interface
+        ['{209B7F20-DF44-4BD6-B1B1-19B2DED36763}']
+        function GetKeys: TVarData; safecall;
     end;
 
 
