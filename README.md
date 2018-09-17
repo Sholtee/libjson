@@ -34,6 +34,11 @@ type
         function Write(const {byRef} AData: OleVariant): WideString; safecall;
         function CreateJsonObject: OleVariant; safecall;
     end;
+	
+    IKeySet = interface
+        ['{209B7F20-DF44-4BD6-B1B1-19B2DED36763}']
+        function GetKeys: OleVariant; safecall;
+    end;
 
     TFormatOption  = (foSingleLineArray, foSingleLineObject, foDoNotQuoteMembers, foMax {UNUSED});
     TFormatOptions = Set of TFormatOption;
@@ -114,6 +119,21 @@ begin
     Json := Writer.Write(Obj); // The returned pointer is valid until the next Write() call 	
     DebugMsg(JSon); // will print "{Str: "val", AnotherObj: {Int: 1986}}"
 end;	
+```
+
+Enumerating keys
+
+```pas
+var
+    Obj, Keys: OleVariant; // varArray or varVariant
+    ...
+
+begin
+    ...
+	
+    Obj := Reader.ParseValue('{str: "val", int: 3, obj: {field: "dummy"}}');
+    Keys := (IUnknown(Obj) as IKeySet).GetKeys; // will contain ["str", "int", "obj"]  
+end;
 ```
 
 ## Download
