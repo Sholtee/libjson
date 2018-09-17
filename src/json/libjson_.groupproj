@@ -6,7 +6,7 @@
         <Projects Include="libjson.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="Tests\test.dproj">
+        <Projects Include="..\..\tests\test.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -27,13 +27,13 @@
         <MSBuild Projects="libjson.dproj" Targets="Make"/>
     </Target>
     <Target Name="test">
-        <MSBuild Projects="Tests\test.dproj"/>
+        <MSBuild Projects="..\..\tests\test.dproj"/>
     </Target>
     <Target Name="test:Clean">
-        <MSBuild Projects="Tests\test.dproj" Targets="Clean"/>
+        <MSBuild Projects="..\..\tests\test.dproj" Targets="Clean"/>
     </Target>
     <Target Name="test:Make">
-        <MSBuild Projects="Tests\test.dproj" Targets="Make"/>
+        <MSBuild Projects="..\..\tests\test.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
         <CallTarget Targets="libjson;test"/>
