@@ -62,9 +62,6 @@ begin
     FObj := CreateExpandoObject;
 
     CheckEquals(varDispatch, VarType(FObj));
-    {$IFDEF FPC}
-    Check(ISafeDispatch(FObj) is IExpandoObject);
-    {$ENDIF}
 end;
 
 
@@ -98,10 +95,10 @@ begin
     FObj.Property1 := 'XYZ';
     FObj.Property2 := Integer(1986);
 
-    Keys := (FObj as IKeySet).GetKeys;
+    Keys := (IUnknown(FObj) as IKeySet).GetKeys;
 
     CheckEquals(varArray or varVariant, VarType(Keys));
-    CheckEquals(2, VarArrayHighBound(Keys, 1));
+    CheckEquals(1, VarArrayHighBound(Keys, 1));
     Check(Keys[0] <> Keys[1]);
     Check((Keys[0] = 'Property1') or (Keys[0] = 'Property2'));
     Check((Keys[1] = 'Property1') or (Keys[1] = 'Property2'))

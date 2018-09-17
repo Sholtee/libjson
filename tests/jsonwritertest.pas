@@ -90,8 +90,8 @@ begin
     I := 0;
     repeat
         Inc(I);
-        Result := NULL; // Clear last value
-        TVarData(Result) := FReader.ParseValue(PWideChar(StringToParse));
+        Result := UNASSIGNED; // Clear last value
+        Result := FReader.ParseValue(PWideChar(StringToParse));
 
         CheckEquals(WideString('Solti Dénes'), Result.glossary.title); // Unicode
         CheckEquals(2, VarArrayGet(Result.glossary.GlossDiv.GlossList.GlossEntry.GlossDef.Values, [0])); // Array, int
@@ -99,7 +99,7 @@ begin
 
         if I > 1 then Break;
 
-        StringToParse := FWriter.Write(TVarData(Result));
+        StringToParse := FWriter.Write(Result);
     until False;
 end;
 

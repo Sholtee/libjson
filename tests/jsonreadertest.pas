@@ -212,8 +212,8 @@ procedure JsonReaderTests.EmptyObject;
 var
     Keys: OleVariant;
 begin
-    Keys := (FReader.ParseValue('{}') as IKeySet).GetKeys;
-    CheckEquals(0, VarArrayHighBound(Keys, 1));
+    Keys := (IUnknown(FReader.ParseValue('{}')) as IKeySet).GetKeys;
+    CheckEquals(-1, VarArrayHighBound(Keys, 1));
 end;
 
 
