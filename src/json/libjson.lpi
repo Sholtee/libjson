@@ -30,7 +30,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="..\..\bin\libjson$(TargetCPU)"/>
+            <Filename Value="..\..\bin\$(LibName)"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -38,6 +38,8 @@
             <OtherUnitFiles Value="private;public;..\common"/>
             <UnitOutputDirectory Value="..\..\lib"/>
           </SearchPaths>
+          <Conditionals Value="if TargetCpu = 'x86_64' then LibName := 'libjson64'
+else LibName := 'libjson32';"/>
           <Parsing>
             <SyntaxOptions>
               <IncludeAssertionCode Value="True"/>
