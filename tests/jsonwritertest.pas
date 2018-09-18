@@ -90,7 +90,6 @@ begin
     I := 0;
     repeat
         Inc(I);
-        Result := UNASSIGNED; // Clear last value
         Result := FReader.ParseValue(PWideChar(StringToParse));
 
         CheckEquals(WideString('Solti Dénes'), Result.glossary.title); // Unicode
