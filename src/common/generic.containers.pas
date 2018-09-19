@@ -99,7 +99,7 @@ type
         //
 
         FBuckets: TArray<IEntry>;
-        FCount:   Cardinal;
+        FCount:   Integer;
         procedure Grow;
     protected
         procedure SetBucketCount(BucketCount: Cardinal);
@@ -294,7 +294,7 @@ begin
     // Ha az elemek szama a tablanak maximum 75%-a legyen.
     //
 
-    if FCount >= Cardinal(Length(FBuckets) shr 1) + Cardinal(Length(FBuckets) shr 2) {75%} then
+    if FCount >= Length(FBuckets) shr 1 + Length(FBuckets) shr 2 {75%} then
         Grow;
 
     //
