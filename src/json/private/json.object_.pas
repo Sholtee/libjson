@@ -25,7 +25,6 @@ unit json.object_;
 {$IFDEF FPC}
     {$MODE DELPHI}
 {$ENDIF}
-{$DEFINE ORDERED_PROPERTIES}
 
 
 interface
@@ -40,21 +39,14 @@ uses
 type
     TPropertyEnumerator = class sealed
     private
-        {$IFNDEF ORDERED_PROPERTIES}
-        FDispIds: TNameValueCollection<Integer>.THashEnumerator;
-        {$ELSE}
-        FNames: TArray<WideString>;
-        FIndex: Integer;
-        {$ENDIF}
+        FNames:  TArray<WideString>; // Nem masolat
+        FIndex:  Integer;
         FFields: IAppendable<ISmartVariant>;
-        function GetCurrent: TPair<TVarData>;
+        function GetCurrent: TNameValuePair<TVarData>;
     public
-        constructor Create(const AFields: IAppendable<ISmartVariant>; ADispIds: TCustomNameValueCollection<Integer>);
-        {$IFNDEF ORDERED_PROPERTIES}
-        destructor Destroy; override;
-        {$ENDIF}
+        constructor Create(const AFields: IAppendable<ISmartVariant>; ADispIds: INameValueCollection<Integer>);
         function MoveNext: Boolean;
-        property Current: TPair<TVarData> read GetCurrent;
+        property Current: TNameValuePair<TVarData> read GetCurrent;
     end;
 
 
@@ -75,7 +67,7 @@ type
 
     TExpandoObject = class sealed(TSafeObject, ISafeDispatch, IKeySet, IExpandoObject)
     private
-        FDispIds: TNameValueCollection<Integer>;
+        FDispIds: INameValueCollection<Integer>;
         FFields:  IAppendable<ISmartVariant>;
         function GetIdOfName(const Name: WideString): Integer;
         { ISafeDispatch }
@@ -87,7 +79,6 @@ type
         function GetKeys: TVarData; safecall;
     public
         constructor Create;
-        destructor Destroy; override;
         function AsVariant: TVarData;
         { IExpandoObject }
         function GetEnumerator: TPropertyEnumerator; // publikus h az "I in Self" kifejezes mukodjon
@@ -109,9 +100,8 @@ type
 
 {$REGION TPropertyEnumerator}
 constructor TPropertyEnumerator.Create;
-{$IFDEF ORDERED_PROPERTIES}
 var
-    I: TPair<Integer>;
+    I: TNameValuePair<Integer>;
 begin
     FFields := AFields;
     FIndex := -1;
@@ -122,34 +112,14 @@ begin
     //
 
     SetLength(FNames, ADispIds.Count);
-    for I in ADispIds do FNames[I.Data] := I.Name;
+    for I in ADispIds do FNames[I.Value] := I.Name;
 end;
-{$ELSE}
-begin
-    FFields  := AFields;
-    FDispIds := ADispIds.GetEnumerator;
-end;
-{$ENDIF}
-
-
-{$IFNDEF ORDERED_PROPERTIES}
-destructor TPropertyEnumerator.Destroy;
-begin
-    FDispIds.Free;
-    inherited;
-end;
-{$ENDIF}
 
 
 function TPropertyEnumerator.GetCurrent;
 begin
-{$IFNDEF ORDERED_PROPERTIES}
-    Result.Name := FDispIds.Current.Name;
-    Result.Data := FFields[ FDispIds.Current.Data ].Data^;
-{$ELSE}
     Result.Name := FNames[FIndex];
-    Result.Data := FFields[FIndex].Data^;
-{$ENDIF}
+    Result.Value := FFields[FIndex].Data^; // Nem kell VariantCopy(), csak belsoleg van hasznalva
 end;
 
 
@@ -159,16 +129,10 @@ begin
     // Ures tagokat (varEmpty = torolt v meg ertek nelkuli) kihagyjuk.
     //
 
-{$IFNDEF ORDERED_PROPERTIES}
-    repeat
-        Result := FDispIds.MoveNext;
-    until not Result or (FFields[ FDispIds.Current.Data ].Data.VType <> varEmpty);
-{$ELSE}
     repeat
         Inc(Findex);
     until (FIndex = FFields.Count) or (FFields[FIndex].Data.VType <> varEmpty);
     Result := FIndex < FFields.Count;
-{$ENDIF}
 end;
 {$ENDREGION}
 
@@ -177,15 +141,8 @@ end;
 constructor TExpandoObject.Create;
 begin
     inherited Create;
-    FDispIds := TNameValueCollection<Integer>.Create;
+    FDispIds := TCaseInsensitiveNameValueCollection<Integer>.Create;
     FFields  := TAppendable<ISmartVariant>.Create;
-end;
-
-
-destructor TExpandoObject.Destroy;
-begin
-    FDispIds.Free;
-    inherited;
 end;
 
 
@@ -303,7 +260,7 @@ end;
 function TExpandoObject.GetKeys;
 var
     Lst: TVariantList;
-    I:   TPair<TVarData>;
+    I:   TNameValuePair<TVarData>;
     V:   TVarData;
 begin
     Lst := TVariantList.Create(0);

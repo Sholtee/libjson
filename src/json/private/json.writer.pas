@@ -193,7 +193,7 @@ procedure TJsonWriter.ObjectToJsonString;
 const
     MemberFmt: WideString = '"%1!s!"';
 var
-    Prop:  TPair<TVarData>; // TVarData NEM masolat
+    Prop:  TNameValuePair<TVarData>; // TVarData NEM masolat
     First: Boolean;
 begin
     FBuilder.Append('{');
@@ -218,7 +218,7 @@ begin
         else FBuilder.Append(MemberFmt.Args([Prop.Name]));
 
         FBuilder.Append(':');
-        AnyToString(Prop.Data, Succ(ACurrentIndent));
+        AnyToString(Prop.Value, Succ(ACurrentIndent));
     end;
 
     //

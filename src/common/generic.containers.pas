@@ -34,6 +34,97 @@ type
 {$ENDIF}
 
 
+    TNameValuePair<T> = record
+        Name: WideString;
+        Value: T;
+    end;
+
+
+    IEnumerator<T> = interface
+        function GetCurrent: T;
+        function MoveNext: Boolean;
+        property Current: T read GetCurrent;
+    end;
+
+
+    INameValueCollection<T> = interface
+        function Add(const Name: WideString; const Value: T): Boolean;
+        function Get(const Name: WideString; out Value: T): Boolean;
+        function Remove(const Name: WideString): Boolean;
+        function Contains(const Name: WideString): Boolean;
+        function GetEnumerator: IEnumerator<TNameValuePair<T>>;
+        function GetCount: Integer;
+        procedure Clear;
+        property Count: Integer read GetCount;
+    end;
+
+
+    TCaseSensitiveNameValueCollection<T> = class(TInterfacedObject, INameValueCollection<T>)
+    protected const
+        INITIAL_BUCKET_COUNT = 4;
+    protected type
+        PIEntry = ^IEntry;
+        IEntry = interface
+           function KVP: TNameValuePair<T>;
+           function Next: PIEntry;
+        end;
+        TEntry = class sealed(TInterfacedObject, IEntry)
+        private
+            FKVP:  TNameValuePair<T>;
+            FNext: IEntry;
+            function KVP: TNameValuePair<T>;
+            function Next: PIEntry;
+        public
+            constructor Create(const AName: WideString; const AData: T);
+        end;
+    public type
+        TEnumerator = class sealed(TInterfacedObject, IEnumerator<TNameValuePair<T>>)
+        private
+            FBuckets: TArray<IEntry>; // NEM masolat...
+            FIndex:   Integer;
+            FCurrent: IEntry;
+            function GetCurrent: TNameValuePair<T>;
+        public
+            constructor Create(const ABuckets: TArray<IEntry>);
+            function MoveNext: Boolean;
+            property Current: TNameValuePair<T> read GetCurrent;
+        end;
+    strict private
+        //
+        // Bucket (vodor) az IEntry-k egy halmaza mely az FBuckets
+        // egy indexe alol erhetok el.
+        //
+
+        FBuckets: TArray<IEntry>;
+        FCount:   Cardinal;
+        procedure Grow;
+    protected
+        procedure SetBucketCount(BucketCount: Cardinal); virtual;
+        procedure ReHash(BucketCount: Cardinal);
+        function Hash(const Str: WideString): Cardinal; virtual;
+        function Find(const Name: WideString): PIEntry;
+        function GetCount: Integer;
+        property Buckets: TArray<IEntry> read FBuckets;
+    public
+        constructor Create;
+        { INameValueCollection<T> }
+        function Add(const Name: WideString; const Value: T): Boolean;
+        function Get(const Name: WideString; out Data: T): Boolean;
+        function Remove(const Name: WideString): Boolean;
+        function Contains(const Name: WideString): Boolean;
+        function GetEnumerator: IEnumerator<TNameValuePair<T>>;
+        procedure Clear;
+    public
+        property Count: Integer read GetCount;
+    end;
+
+
+    TCaseInsensitiveNameValueCollection<T> = class sealed(TCaseSensitiveNameValueCollection<T>)
+    protected
+        function Hash(const Str: WideString): Cardinal; override;
+    end;
+
+
     IAppendable<T> = interface
         procedure Append(const Val: T);
         procedure Clean;
@@ -50,7 +141,7 @@ type
 
     TAppendable<T> = class(TInterfacedObject, IAppendable<T>)
     private
-        FResult: TArray<T>;
+        FBuffer: TArray<T>;
         FCount:  Integer;
         { IAppendable }
         function GetResult: TArray<T>;
@@ -66,80 +157,6 @@ type
     end;
 
 
-    TPair<T> = record
-        Name: WideString;
-        Data: T;
-    end;
-
-
-    ///
-    ///  Kis-nagybetu erzekeny szotar.
-    ///
-    TCustomNameValueCollection<T> = class
-    protected const
-        INITIAL_TABLE_SIZE = 4;
-    protected type
-        PIHashItem = ^IHashItem;
-        IHashItem = interface
-           function Name: WideString;
-           function Data: T;
-           function Next: PIHashItem;
-        end;
-        THashItem = class sealed(TInterfacedObject, IHashItem)
-        private
-            FName: WideString;
-            FData: T;
-            FNext: IHashItem;
-            function Name: WideString;
-            function Data: T;
-            function Next: PIHashItem;
-        public
-            constructor Create(const AName: WideString; const AData: T);
-        end;
-    public type
-        THashEnumerator = class sealed
-        private
-            FTable:   TArray<IHashItem>; // NEM masolat...
-            FIndex:   Integer;
-            FCurrent: IHashItem;
-            function GetCurrent: TPair<T>;
-        public
-            constructor Create(const ATable: TArray<IHashItem>);
-            function MoveNext: Boolean;
-            property Current: TPair<T> read GetCurrent;
-        end;
-    strict private
-        FTable: TArray<IHashItem>;
-        FCount: Cardinal;
-        procedure Grow;
-    protected
-        procedure SetTableLength(TableLen: Cardinal); virtual;
-        procedure ReHash(TableLen: Cardinal);
-        function Hash(const Str: WideString): Cardinal; virtual;
-        function Find(const Name: WideString): PIHashItem;
-        property Table: TArray<IHashItem> read FTable;
-    public
-        constructor Create;
-        function Add(const Name: WideString; const Data: T): Boolean;
-        function Get(const Name: WideString; out Data: T): Boolean;
-        function Remove(const Name: WideString): Boolean;
-        function Contains(const Name: WideString): Boolean;
-        function GetEnumerator: THashEnumerator;
-        procedure Clear;
-    public
-        property Count: Cardinal read FCount;
-    end;
-
-
-    ///
-    /// Nem kis-nagy betu erzekeny szotar
-    ///
-    TNameValueCollection<T> = class sealed(TCustomNameValueCollection<T>)
-    protected
-        function Hash(const Str: WideString): Cardinal; override;
-    end;
-
-
 implementation
 
 
@@ -149,45 +166,39 @@ uses
     system.error, system.strings;
 
 
-{$REGION THashItem}
-constructor TCustomNameValueCollection<T>.THashItem.Create;
+{$REGION TEntry}
+constructor TCaseSensitiveNameValueCollection<T>.TEntry.Create;
 begin
-    FName := AName;
-    FData := AData;
+    FKVP.Name := AName;
+    FKVP.Value := AData;
 end;
 
 
-function TCustomNameValueCollection<T>.THashItem.Name;
+function TCaseSensitiveNameValueCollection<T>.TEntry.KVP;
 begin
-    Result := FName;
+    Result := FKVP;
 end;
 
 
-function TCustomNameValueCollection<T>.THashItem.Data;
-begin
-    Result := FData;
-end;
-
-
-function TCustomNameValueCollection<T>.THashItem.Next;
+function TCaseSensitiveNameValueCollection<T>.TEntry.Next;
 begin
     Result := @FNext;
 end;
 {$ENDREGION}
 
 
-{$REGION TCustomNameValueCollection}
-constructor TCustomNameValueCollection<T>.Create;
+{$REGION TCaseSensitiveNameValueCollection}
+constructor TCaseSensitiveNameValueCollection<T>.Create;
 begin
     inherited;
-    SetTableLength(INITIAL_TABLE_SIZE);
+    SetBucketCount(INITIAL_BUCKET_COUNT);
 end;
 
 
-procedure TCustomNameValueCollection<T>.ReHash;
+procedure TCaseSensitiveNameValueCollection<T>.ReHash;
 var
-    Tmp: TCustomNameValueCollection<T>;
-    I: TPair<T>;
+    Tmp: TCaseSensitiveNameValueCollection<T>;
+    I:   TNameValuePair<T>;
 begin
     //
     // Ahelyett h in place szamolgatnank ujra a hash-eket,
@@ -196,34 +207,34 @@ begin
     // elemeket.
     //
 
-    Tmp := ClassType.Create as TCustomNameValueCollection<T>; // Az aktualis tipust peldanyositjuk
+    Tmp := ClassType.Create as TCaseSensitiveNameValueCollection<T>; // Az aktualis tipust peldanyositjuk
     try
-        Tmp.SetTableLength(TableLen);
-        for I in Self do Tmp.Add(I.Name, I.Data);
+        Tmp.SetBucketCount(BucketCount);
+        for I in Self do Tmp.Add(I.Name, I.Value);
 
         //
         // A regi tablat az ujra csereljuk.
         //
 
-        FTable := Tmp.Table;
+        FBuckets := Tmp.Buckets;
     finally
         Tmp.Free;
     end;
 end;
 
 
-procedure TCustomNameValueCollection<T>.Grow;
+procedure TCaseSensitiveNameValueCollection<T>.Grow;
 var
     NewCap: Cardinal;
 begin
-    if Length(FTable) = 0 then NewCap := 4
-    else NewCap := Length(FTable) * 2;
+    if Length(FBuckets) = 0 then NewCap := INITIAL_BUCKET_COUNT
+    else NewCap := Length(FBuckets) * 2;
 
     ReHash(NewCap);
 end;
 
 
-function TCustomNameValueCollection<T>.Hash;
+function TCaseSensitiveNameValueCollection<T>.Hash;
 var
     C: WideChar;
 begin
@@ -240,17 +251,17 @@ begin
     // Ferjunk bele az oszlopok szamaba.
     //
 
-    Result := Result mod Cardinal( Length(FTable) );
+    Result := Result mod Cardinal( Length(FBuckets) );
 end;
 
 
-function TCustomNameValueCollection<T>.Find;
+function TCaseSensitiveNameValueCollection<T>.Find;
 begin
     //
     // Ugras a nevhez tartozo hash oszlopanak elso elemere.
     //
 
-    Result := @FTable[ Hash(Name) ];
+    Result := @FBuckets[ Hash(Name) ];
 
     //
     // Linearisan keressuk meg a nevhez tartozo elemet, v
@@ -259,27 +270,27 @@ begin
 
     while Assigned(Result^) do
     begin
-        if Result^.Name.Equals(Name) then Exit;
+        if Result.KVP.Name.Equals(Name) then Exit;
         Result := Result.Next;
     end;
 end;
 
 
-function TCustomNameValueCollection<T>.Contains;
+function TCaseSensitiveNameValueCollection<T>.Contains;
 begin
     Result := Assigned( Find(Name)^ );
 end;
 
 
-function TCustomNameValueCollection<T>.Add;
+function TCaseSensitiveNameValueCollection<T>.Add;
 var
-    P: PIHashItem;
+    P: PIEntry;
 begin
     //
     // Ha az elemek szama a tablanak maximum 75%-a legyen.
     //
 
-    if FCount >= Cardinal(Length(FTable) shr 1) + Cardinal(Length(FTable) shr 2) {75%} then
+    if FCount >= Cardinal(Length(FBuckets) shr 1) + Cardinal(Length(FBuckets) shr 2) {75%} then
         Grow;
 
     //
@@ -294,30 +305,32 @@ begin
 
     if Result then
     begin
-        P^ := THashItem.Create(Name, Data); // Torli a regi elemet (ha volt)
+        P^ := TEntry.Create(Name, Value); // Torli a regi elemet (ha volt)
         Inc(FCount);
     end;
 end;
 
 
-function TCustomNameValueCollection<T>.Get;
+function TCaseSensitiveNameValueCollection<T>.Get;
 var
-    Hi: IHashItem;
+    Entry: IEntry;
 begin
-    Hi := Find(Name)^;
-    Result := Assigned(Hi);
-    if Result then Data := Hi.Data;
+    Entry  := Find(Name)^;
+    Result := Assigned(Entry);
+
+    if Result then Data := Entry.KVP.Value;
 end;
 
 
-function TCustomNameValueCollection<T>.Remove;
+function TCaseSensitiveNameValueCollection<T>.Remove;
 var
-    Prev: PIHashItem;
-    Hi: IHashItem;  // Kell az automatikus felszabaditashoz
+    Prev:  PIEntry;
+    Entry: IEntry;  // Kell az automatikus felszabaditashoz
 begin
-    Prev := Find(Name);
-    Hi := Prev^;
-    Result := Assigned(Hi);
+    Prev   := Find(Name);
+    Entry  := Prev^;
+    Result := Assigned(Entry);
+
     if Result then
     begin
         //
@@ -325,41 +338,51 @@ begin
         // listabol (felulirjuk a kovetkezo elemmel).
         //
 
-        Prev^ := Hi.Next^;
+        Prev^ := Entry.Next^;
         Dec(FCount);
     end;
 end;
 
 
-procedure TCustomNameValueCollection<T>.Clear;
+procedure TCaseSensitiveNameValueCollection<T>.Clear;
 begin
-    SetTableLength(0); // Torli a korabbi elemeket
-    SetTableLength(INITIAL_TABLE_SIZE);
+    SetBucketCount(0); // Torli a korabbi elemeket
+    SetBucketCount(INITIAL_BUCKET_COUNT);
     FCount := 0;
 end;
 
 
-procedure TCustomNameValueCollection<T>.SetTableLength;
+procedure TCaseSensitiveNameValueCollection<T>.SetBucketCount;
 begin
-    SetLength(FTable, TableLen);
+    try
+        SetLength(FBuckets, BucketCount);
+    except
+        ComError(E_OUTOFMEMORY);
+    end;
 end;
 
 
-function TCustomNameValueCollection<T>.GetEnumerator;
+function TCaseSensitiveNameValueCollection<T>.GetEnumerator;
 begin
-    Result := THashEnumerator.Create(FTable);
+    Result := TEnumerator.Create(FBuckets);
+end;
+
+
+function TCaseSensitiveNameValueCollection<T>.GetCount;
+begin
+    Result := FCount;
 end;
 {$ENDREGION}
 
 
-{$REGION THashEnumerator}
-constructor TCustomNameValueCollection<T>.THashEnumerator.Create;
+{$REGION TEnumerator}
+constructor TCaseSensitiveNameValueCollection<T>.TEnumerator.Create;
 begin
-    FTable := ATable;
+    FBuckets := ABuckets;
 end;
 
 
-function TCustomNameValueCollection<T>.THashEnumerator.MoveNext;
+function TCaseSensitiveNameValueCollection<T>.TEnumerator.MoveNext;
 begin
     repeat
         //
@@ -373,8 +396,8 @@ begin
         //
 
         else begin
-            if FIndex = Length(FTable) then Exit(False);
-            FCurrent := FTable[FIndex];
+            if FIndex = Length(FBuckets) then Exit(False);
+            FCurrent := FBuckets[FIndex];
             Inc(FIndex);
         end;
 
@@ -387,22 +410,17 @@ begin
 end;
 
 
-function TCustomNameValueCollection<T>.THashEnumerator.GetCurrent;
+function TCaseSensitiveNameValueCollection<T>.TEnumerator.GetCurrent;
 begin
     Assert( Assigned(FCurrent) );
 
-    //
-    // Adat kiolvasasa.
-    //
-
-    Result.Name := FCurrent.Name;
-    Result.Data := FCurrent.Data;
+    Result := FCurrent.KVP;
 end;
 {$ENDREGION}
 
 
-{$REGION TNameValueCollection}
-function TNameValueCollection<T>.Hash;
+{$REGION TCaseInsensitiveNameValueCollection}
+function TCaseInsensitiveNameValueCollection<T>.Hash;
 begin
     Result := inherited Hash(Str.LowerCase);
 end;
@@ -420,16 +438,16 @@ procedure TAppendable<T>.Append;
 var
     Delta: Integer;
 begin
-    if Length(FResult) = FCount then
+    if Length(FBuffer) = FCount then
     begin
-        if FCount = 0 then Delta := 4 else Delta := Length(FResult) * 2;
+        if FCount = 0 then Delta := 4 else Delta := Length(FBuffer) * 2;
         try
-            SetLength(FResult, Delta);
+            SetLength(FBuffer, Delta);
         except
             ComError(E_OUTOFMEMORY);
         end;
     end;
-    FResult[FCount] := Val;
+    FBuffer[FCount] := Val;
     Inc(FCount);
 end;
 
@@ -440,28 +458,28 @@ begin
     // Meret korrekcio.
     //
 
-    SetLength(FResult, FCount);
-    Result := FResult; // NEM masolat...
+    SetLength(FBuffer, FCount);
+    Result := FBuffer; // NEM masolat...
 end;
 
 
 function TAppendable<T>.GetItem;
 begin
     if ((Index < 0) or (Index > FCount -1)) then WinError(ERROR_BUFFER_OVERFLOW);
-    Result := FResult[Index];
+    Result := FBuffer[Index];
 end;
 
 
 procedure TAppendable<T>.SetItem;
 begin
     if ((Index < 0) or (Index > FCount -1)) then WinError(ERROR_BUFFER_OVERFLOW);
-    FResult[Index] := Val;
+    FBuffer[Index] := Val;
 end;
 
 
 procedure TAppendable<T>.Clean;
 begin
-    SetLength(FResult, 0);
+    SetLength(FBuffer, 0);
     FCount := 0;
 end;
 {$ENDREGION}
