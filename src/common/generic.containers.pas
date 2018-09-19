@@ -47,12 +47,16 @@ type
     end;
 
 
-    INameValueCollection<T> = interface
+    IEnumerable<T> = interface
+        function GetEnumerator: IEnumerator<T>;
+    end;
+
+
+    INameValueCollection<T> = interface(IEnumerable<TNameValuePair<T>>)
         function Add(const Name: WideString; const Value: T): Boolean;
         function Get(const Name: WideString; out Value: T): Boolean;
         function Remove(const Name: WideString): Boolean;
         function Contains(const Name: WideString): Boolean;
-        function GetEnumerator: IEnumerator<TNameValuePair<T>>;
         function GetCount: Integer;
         procedure Clear;
         property Count: Integer read GetCount;
@@ -107,12 +111,13 @@ type
         property Buckets: TArray<IEntry> read FBuckets;
     public
         constructor Create;
+        { IEnumerable<TNameValuePair<T>> }
+        function GetEnumerator: IEnumerator<TNameValuePair<T>>;
         { INameValueCollection<T> }
         function Add(const Name: WideString; const Value: T): Boolean;
         function Get(const Name: WideString; out Data: T): Boolean;
         function Remove(const Name: WideString): Boolean;
         function Contains(const Name: WideString): Boolean;
-        function GetEnumerator: IEnumerator<TNameValuePair<T>>;
         procedure Clear;
     public
         property Count: Integer read GetCount;
