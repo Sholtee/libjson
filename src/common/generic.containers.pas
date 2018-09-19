@@ -11,10 +11,8 @@ Abstract:
 History:
     2014.11.01: Created (Denes Solti)
     2014.12.14: TAppendable<T> (Denes Solti)
-    2015.02.08: Case insensitive dictionary (Denes Solti)
-    2016.07.17: Linked lists (Denes Solti)
-    2018.09.19:
-        - IAppendable<T> (Denes Solti)
+    2015.02.08: Case insensitive name-value collection (Denes Solti)
+    2018.09.19: IEnumerable<T>, IEnumerator<T>, INameValueCollection<T>, IAppendable<T> (Denes Solti)
 
 *******************************************************************************}
 unit generic.containers;
@@ -22,6 +20,7 @@ unit generic.containers;
 
 {$IFDEF FPC}
     {$MODE DELPHI}
+    {$DEFINE ENUMERATOR_HACK}
 {$ENDIF}
 
 
@@ -52,7 +51,7 @@ type
     end;
 
 
-    INameValueCollection<T> = interface(IEnumerable<TNameValuePair<T>>)
+    INameValueCollection<T> = interface{$IFNDEF ENUMERATOR_HACK}(IEnumerable<TNameValuePair<T>>){$ENDIF}
         function Add(const Name: WideString; const Value: T): Boolean;
         function Get(const Name: WideString; out Value: T): Boolean;
         function Remove(const Name: WideString): Boolean;
@@ -82,7 +81,7 @@ type
             constructor Create(const AName: WideString; const AData: T);
         end;
     public type
-        TEnumerator = class sealed(TInterfacedObject, IEnumerator<TNameValuePair<T>>)
+        TEnumerator = class sealed(TInterfacedObject{$IFNDEF ENUMERATOR_HACK}, IEnumerator<TNameValuePair<T>>{$ENDIF})
         private
             FBuckets: TArray<IEntry>; // NEM masolat...
             FIndex:   Integer;
@@ -96,14 +95,14 @@ type
     strict private
         //
         // Bucket (vodor) az IEntry-k egy halmaza mely az FBuckets
-        // egy indexe alol erhetok el.
+        // egy indexe alol erheto el.
         //
 
         FBuckets: TArray<IEntry>;
         FCount:   Cardinal;
         procedure Grow;
     protected
-        procedure SetBucketCount(BucketCount: Cardinal); virtual;
+        procedure SetBucketCount(BucketCount: Cardinal);
         procedure ReHash(BucketCount: Cardinal);
         function Hash(const Str: WideString): Cardinal; virtual;
         function Find(const Name: WideString): PIEntry;
@@ -112,7 +111,7 @@ type
     public
         constructor Create;
         { IEnumerable<TNameValuePair<T>> }
-        function GetEnumerator: IEnumerator<TNameValuePair<T>>;
+        function GetEnumerator: {$IFNDEF ENUMERATOR_HACK}IEnumerator<TNameValuePair<T>>{$ELSE}TEnumerator{$ENDIF};
         { INameValueCollection<T> }
         function Add(const Name: WideString; const Value: T): Boolean;
         function Get(const Name: WideString; out Data: T): Boolean;

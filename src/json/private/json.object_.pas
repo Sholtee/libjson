@@ -112,7 +112,7 @@ begin
     //
 
     SetLength(FNames, ADispIds.Count);
-    for I in ADispIds do FNames[I.Value] := I.Name;
+    for I in ADispIds {$IFDEF FPC} as TCaseInsensitiveNameValueCollection<Integer> {$ENDIF} do FNames[I.Value] := I.Name;
 end;
 
 
