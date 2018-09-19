@@ -269,8 +269,9 @@ begin
     for I in Self do
     begin
         //
-        // Mivel "V"-rol masolat keszul, nem gond h a kovetkezo
-        // iteracioban ez a mutato mar ervenyet veszti.
+        // Mivel "V"-rol masolat keszul (az Add()-ben),
+        // ezert nem gond h a kovetkezo iteracioban ez
+        // a mutato mar ervenyet veszti.
         //
 
         V.VOleStr := PWideChar(I.Name);
@@ -278,12 +279,13 @@ begin
     end;
 
     //
-    // Nem kell masolat mert a listaval egyutt nem szabadul fel
-    // a tartalom is (lasd ctor parameterek).
+    // Nem kell masolat mert az utolso sorban levo HACK-el
+    // elerjuk h (a metodus lefutasa utan) a lista tartalma
+    // ne keruljon felszabaditasra.
     //
 
     Result := Lst.Data.Data^;
-    Lst.Data.Data^.VType := varEmpty; // HACK h ne legyen automatikus felszabaditas
+    Lst.Data.Data^.VType := varEmpty;
 end;
 {$ENDREGION}
 
