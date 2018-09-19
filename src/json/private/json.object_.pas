@@ -46,10 +46,10 @@ type
         FNames: TArray<WideString>;
         FIndex: Integer;
         {$ENDIF}
-        FFields: TAppendable<ISmartVariant>;
+        FFields: IAppendable<ISmartVariant>;
         function GetCurrent: TPair<TVarData>;
     public
-        constructor Create(const AFields: TAppendable<ISmartVariant>; ADispIds: TCustomNameValueCollection<Integer>);
+        constructor Create(const AFields: IAppendable<ISmartVariant>; ADispIds: TCustomNameValueCollection<Integer>);
         {$IFNDEF ORDERED_PROPERTIES}
         destructor Destroy; override;
         {$ENDIF}
@@ -76,7 +76,7 @@ type
     TExpandoObject = class sealed(TSafeObject, ISafeDispatch, IKeySet, IExpandoObject)
     private
         FDispIds: TNameValueCollection<Integer>;
-        FFields:  TAppendable<ISmartVariant>;
+        FFields:  IAppendable<ISmartVariant>;
         function GetIdOfName(const Name: WideString): Integer;
         { ISafeDispatch }
         procedure GetTypeInfoCount(out Count: Integer); safecall;

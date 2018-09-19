@@ -13,6 +13,8 @@ History:
     2014.12.14: TAppendable<T> (Denes Solti)
     2015.02.08: Case insensitive dictionary (Denes Solti)
     2016.07.17: Linked lists (Denes Solti)
+    2018.09.19:
+        - IAppendable<T> (Denes Solti)
 
 *******************************************************************************}
 unit generic.containers;
@@ -30,6 +32,38 @@ type
 {$IFDEF FPC}
     TArray<T> = array of T;
 {$ENDIF}
+
+
+    IAppendable<T> = interface
+        procedure Append(const Val: T);
+        procedure Clean;
+        function GetResult: TArray<T>;
+        function GetCount: Integer;
+        function GetItem(Index: Integer): T;
+        procedure SetItem(Index: Integer; Val: T);
+
+        property Result: TArray<T> read GetResult;
+        property Count: Integer read GetCount;
+        property Items[Index: Integer]: T read GetItem write SetItem; default;
+    end;
+
+
+    TAppendable<T> = class(TInterfacedObject, IAppendable<T>)
+    private
+        FResult: TArray<T>;
+        FCount:  Integer;
+        { IAppendable }
+        function GetResult: TArray<T>;
+        function GetCount: Integer;
+        function GetItem(Index: Integer): T;
+        procedure SetItem(Index: Integer; Val: T);
+    public
+        procedure Append(const Val: T);
+        procedure Clean;
+        property Result: TArray<T> read GetResult;
+        property Count: Integer read GetCount;
+        property Items[Index: Integer]: T read GetItem write SetItem; default;
+    end;
 
 
     TPair<T> = record
@@ -106,68 +140,13 @@ type
     end;
 
 
-    TAppendable<T> = record
-    private
-        FResult: TArray<T>;
-        FCount:  Integer;
-        function GetResult: TArray<T>;
-        function GetItem(Index: Integer): T;
-        procedure SetItem(Index: Integer; Val: T);
-    public
-        class function Create: TAppendable<T>; static;
-        procedure Append(const Val: T);
-        procedure Clean;
-        property Result: TArray<T> read GetResult;
-        property Count: Integer read FCount;
-        property Items[Index: Integer]: T read GetItem write SetItem; default;
-    end;
-
-
-    // TLinkedList<T> = class;
-
-
-    TLinkedListNode<T> = class sealed(TInterfacedObject)
-    strict private
-        FNext, FPrev: IUnknown;
-        FValue: T;
-        FOwner: {TLinkedList<T>} TObject; // FPC BUG =(
-        function GetNext: TLinkedListNode<T>;
-        function GetPrev: TLinkedListNode<T>;
-    private // Olvashato ebben a unit-ban
-        procedure Remove;
-        procedure InsertBefore(ANode: TLinkedListNode<T>);
-//      procedure InsertAfter(ANode: TLinkedListNode<T>);
-        procedure InitializeHead;
-    public
-        constructor Create(const AValue: T);
-        property Next: TLinkedListNode<T> read GetNext;
-        property Prev: TLinkedListNode<T> read GetPrev;
-        property Value: T read FValue;
-        property Owner: {TLinkedList<T>} TObject read FOwner;
-    end;
-
-
-    TLinkedList<T> = class sealed
-    private
-        FHead: IUnknown;
-        FCount: Integer;
-        function GetHead: TLinkedListNode<T>;
-        function GetTail: TLinkedListNode<T>;
-    public
-        function AddLast(const AValue: T): TLinkedListNode<T>;
-        procedure RemoveFirst;
-        procedure Remove(ANode: TLinkedListNode<T>);
-        property Head: TLinkedListNode<T> read GetHead;
-        property Tail: TLinkedListNode<T> read GetTail;
-        property Count: Integer read FCount;
-    end;
-
-
 implementation
 
 
 uses
-    system.strings;
+    JwaWinError,
+
+    system.error, system.strings;
 
 
 {$REGION THashItem}
@@ -431,9 +410,9 @@ end;
 
 
 {$REGION TAppendable}
-class function TAppendable<T>.Create;
+function TAppendable<T>.GetCount;
 begin
-    Result.FCount := 0;
+    Result := FCount;
 end;
 
 
@@ -444,7 +423,11 @@ begin
     if Length(FResult) = FCount then
     begin
         if FCount = 0 then Delta := 4 else Delta := Length(FResult) * 2;
-        SetLength(FResult, Delta);
+        try
+            SetLength(FResult, Delta);
+        except
+            ComError(E_OUTOFMEMORY);
+        end;
     end;
     FResult[FCount] := Val;
     Inc(FCount);
@@ -453,6 +436,10 @@ end;
 
 function TAppendable<T>.GetResult;
 begin
+    //
+    // Meret korrekcio.
+    //
+
     SetLength(FResult, FCount);
     Result := FResult; // NEM masolat...
 end;
@@ -460,14 +447,14 @@ end;
 
 function TAppendable<T>.GetItem;
 begin
-    Assert((Index >= 0) and (Index < FCount));
+    if ((Index < 0) or (Index > FCount -1)) then WinError(ERROR_BUFFER_OVERFLOW);
     Result := FResult[Index];
 end;
 
 
 procedure TAppendable<T>.SetItem;
 begin
-    Assert((Index >= 0) and (Index < FCount));
+    if ((Index < 0) or (Index > FCount -1)) then WinError(ERROR_BUFFER_OVERFLOW);
     FResult[Index] := Val;
 end;
 
@@ -476,122 +463,6 @@ procedure TAppendable<T>.Clean;
 begin
     SetLength(FResult, 0);
     FCount := 0;
-end;
-{$ENDREGION}
-
-
-{$REGION TLinkedListNode}
-constructor TLinkedListNode<T>.Create;
-begin
-    inherited Create;
-    FValue := AValue;
-end;
-
-
-function TLinkedListNode<T>.GetNext;
-begin
-    if Assigned(FNext) then Result := FNext as TLinkedListNode<T>
-    else Result := nil;
-end;
-
-
-function TLinkedListNode<T>.GetPrev;
-begin
-    if Assigned(FPrev) then Result := FPrev as TLinkedListNode<T>
-    else Result := nil;
-end;
-
-
-procedure TLinkedListNode<T>.Remove;
-var
-    {$IFDEF FPC}{$PUSH}{$NOTES OFF}{$ENDIF}
-    LifeTime: IUnknown;
-    {$IFDEF FPC}{$POP}{$ENDIF}
-begin
-    LifeTime := Self; // A Node csak a metodus lefutasat kovetoen szabaduljon fel
-    if Assigned(FNext) then Next.FPrev := FPrev;
-    if Assigned(FPrev) then Prev.FNext := FNext;
-
-    FOwner := nil;
-end;
-
-
-procedure TLinkedListNode<T>.InsertBefore;
-begin
-    if Assigned(FPrev) then Prev.FNext := ANode;
-    ANode.FPrev := FPrev;
-
-    ANode.FNext := Self;
-    FPrev := ANode;
-
-    FOwner := ANode.Owner;
-end;
-
-{
-procedure TLinkedListNode<T>.InsertAfter;
-begin
-    if Assigned(FNext) then Next.FPrev := ANode;
-    ANode.FNext := FNext;
-
-    ANode.FPrev := Self;
-    FNext := ANode;
-
-    FOwner := ANode.Owner;
-end;
-}
-
-procedure TLinkedListNode<T>.InitializeHead;
-begin
-    FNext := Self;
-    FPrev := Self;
-end;
-{$ENDREGION}
-
-
-{$REGION TLinkedList}
-function TLinkedList<T>.GetHead;
-begin
-    if Assigned(FHead) then Result := FHead as TLinkedListNode<T>
-    else Result := nil;
-end;
-
-
-function TLinkedList<T>.GetTail;
-begin
-    if Assigned(Head) then Result := Head.Prev
-    else Result := nil;
-end;
-
-
-function TLinkedList<T>.AddLast;
-begin
-    Result := TLinkedListNode<T>.Create(AValue);
-
-    if Assigned(Head) then Head.InsertBefore(Result)
-    else begin
-        Result.InitializeHead();
-        FHead := Result
-    end;
-
-    Inc(FCount);
-end;
-
-
-procedure TLinkedList<T>.RemoveFirst;
-begin
-    if Assigned(Head) then Remove(Head);
-end;
-
-
-procedure TLinkedList<T>.Remove;
-begin
-    Assert(ANode.Owner = Self);
-    ANode.Remove();
-    if ANode = Head then
-    begin
-        if FCount > 1 then FHead := Head.Next else FHead := nil;
-    end;
-    Dec(FCount);
 end;
 {$ENDREGION}
 
