@@ -1,0 +1,1 @@
+powershell.exe -nologo -noprofile -command "& { Add-Type -A  'System.IO', 'System.IO.Compression.FileSystem'; if (![IO.Directory]::Exists('bin')) {[IO.Compression.ZipFile]::ExtractToDirectory('lazarus-win32.zip', 'bin');} }"
