@@ -5,5 +5,7 @@ pool:
   vmImage: 'vs2017-win2016'
 
 steps:
+- checkout: self
+  lfs: true
 - script: build
   displayName: 'Run the build script'
