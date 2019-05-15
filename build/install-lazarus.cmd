@@ -1,14 +1,20 @@
+::
+:: install-lazarus.cmd
+::
+:: Author: Denes Solti
+::
 @echo off
 
+set zip=%~dp0lazarus-win32.zip
+set bin=%~dp0bin
+
 @echo extracting files...
-powershell.exe -nologo -noprofile -command "& { Add-Type -A  'System.IO', 'System.IO.Compression.FileSystem'; if (![IO.Directory]::Exists('bin')) {[IO.Compression.ZipFile]::ExtractToDirectory('lazarus-win32.zip', 'bin');} }"
+powershell.exe -nologo -noprofile -command "& { Add-Type -A  'System.IO', 'System.IO.Compression.FileSystem'; if (![IO.Directory]::Exists('%bin%')) {[IO.Compression.ZipFile]::ExtractToDirectory('%zip%', '%bin%');} }"
 
 @echo update config...
-set bin=%cd%\bin
+@echo --primary-config-path=%bin%>%bin%\lazarus.cfg
 
-@echo --primary-config-path=%bin%\config>bin\lazarus.cfg
-
-set xml=bin\environmentoptions.xml
+set xml=%bin%\environmentoptions.xml
 
 @echo ^<?xml version="1.0"?^>>%xml%
 @echo ^<CONFIG^>>>%xml%

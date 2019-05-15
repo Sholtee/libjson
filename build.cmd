@@ -1,3 +1,8 @@
+::
+:: build.cmd
+::
+:: Author: Denes Solti
+::
 @echo off
 
 @echo installing Lazarus:
