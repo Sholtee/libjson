@@ -14,6 +14,11 @@ powershell.exe -nologo -noprofile -command "& { Add-Type -A  'System.IO', 'Syste
 @echo update config...
 @echo --primary-config-path=%bin%>%bin%\lazarus.cfg
 
+set fpc=%bin%\fpc\3.0.4
+set fpcbin=%fpc%\bin\i386-win32
+
+call "%fpcbin%\fpcmkcfg.exe" -d basepath="%fpc%" -o "%fpcbin%\fpc.cfg"
+
 set xml=%bin%\environmentoptions.xml
 
 @echo ^<?xml version="1.0"?^>>%xml%
