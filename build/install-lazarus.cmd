@@ -6,6 +6,10 @@
 @echo off
 
 set zip=%~dp0lazarus-win32.zip
+
+@echo checking integrity:
+powershell -command "(get-filehash -algorithm md5 '%zip%').Hash"
+
 set bin=%~dp0bin
 
 @echo extracting files...
