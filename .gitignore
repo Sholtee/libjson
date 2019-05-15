@@ -2,10 +2,10 @@
 __[Hh]istory*/
 [Bb][Ii][Nn]*/
 [Ll][Ii][Bb]*/
-.svn*/
 *.identcache
 *.local
 *.lps
+*.res
 *.tvsconfig
 *.dcu
 *.o
