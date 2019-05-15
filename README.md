@@ -1,3 +1,4 @@
+[![Build Status](https://dev.azure.com/sodnaatx/libjson/_apis/build/status/Sholtee.libjson?branchName=master)](https://dev.azure.com/sodnaatx/libjson/_build/latest?definitionId=1&branchName=master)
 # LibJSON
 
 A lightweight, native (Win32/64) JSON reader/writer library, written in Object Pascal. 
